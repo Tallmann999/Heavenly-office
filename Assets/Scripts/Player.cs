@@ -11,6 +11,8 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("Ye и что");
+        Debug.Log("Я помню чудное мгновенье:");
+        Debug.Log("Передо мной явилась ты,");
+        Debug.Log("Как мимолетное виденье,");
     }
 }
