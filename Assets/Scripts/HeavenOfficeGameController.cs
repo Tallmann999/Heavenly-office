@@ -5,6 +5,9 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
+using Font = TMPro.TMP_FontAsset;
+using Text = TMPro.TextMeshProUGUI;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
@@ -534,6 +537,22 @@ public class HeavenOfficeGameController : MonoBehaviour
         }
     }
 
+    [ContextMenu("Rebuild Editable UI")]
+    private void RebuildEditableUiFromInspector()
+    {
+        if (view == null)
+        {
+            view = GetComponent<HeavenOfficeView>();
+        }
+
+        if (view == null)
+        {
+            view = gameObject.AddComponent<HeavenOfficeView>();
+        }
+
+        view.BuildIfNeeded(config.createUiAtRuntime);
+    }
+
     private void Start()
     {
         view.BuildIfNeeded(config.createUiAtRuntime);
@@ -802,48 +821,48 @@ public class HeavenOfficeView : MonoBehaviour
     private Sprite paradiseDestinationSprite;
     private Sprite hellDestinationSprite;
 
-    private Font font;
-    private Text titleText;
-    private Text scoreText;
-    private Text queueText;
-    private Text timerText;
-    private Text mistakesText;
-    private Text comboText;
-    private Text tierText;
-    private Text soulText;
-    private Text reactionText;
-    private Text documentText;
-    private Text stampMarkText;
-    private Text targetZoneText;
-    private Text ruleHintText;
-    private Text feedbackText;
-    private Text finalTitleText;
-    private Text finalStatsText;
-    private Text startTitleText;
-    private Text startSubtitleText;
-    private Text startButtonText;
-    private Text restartButtonText;
-    private GameObject startButtonObject;
-    private Image timerFill;
-    private Image soulCard;
-    private Image documentCard;
-    private Image photoFrame;
-    private Image stampMarkPanel;
-    private Image stampMarkTopLine;
-    private Image stampMarkBottomLine;
-    private Image heldStampImage;
-    private Image leftTrayImage;
-    private Image rightTrayImage;
-    private RectTransform documentRect;
-    private RectTransform soulRect;
-    private RectTransform stampMarkRect;
-    private RectTransform heldStampRect;
-    private RectTransform leftTrayRect;
-    private RectTransform rightTrayRect;
-    private GameObject finalPanel;
-    private GameObject startPanel;
-    private Text photoText;
-    private Text heldStampText;
+    [SerializeField] private Font font;
+    [SerializeField] private Text titleText;
+    [SerializeField] private Text scoreText;
+    [SerializeField] private Text queueText;
+    [SerializeField] private Text timerText;
+    [SerializeField] private Text mistakesText;
+    [SerializeField] private Text comboText;
+    [SerializeField] private Text tierText;
+    [SerializeField] private Text soulText;
+    [SerializeField] private Text reactionText;
+    [SerializeField] private Text documentText;
+    [SerializeField] private Text stampMarkText;
+    [SerializeField] private Text targetZoneText;
+    [SerializeField] private Text ruleHintText;
+    [SerializeField] private Text feedbackText;
+    [SerializeField] private Text finalTitleText;
+    [SerializeField] private Text finalStatsText;
+    [SerializeField] private Text startTitleText;
+    [SerializeField] private Text startSubtitleText;
+    [SerializeField] private Text startButtonText;
+    [SerializeField] private Text restartButtonText;
+    [SerializeField] private GameObject startButtonObject;
+    [SerializeField] private Image timerFill;
+    [SerializeField] private Image soulCard;
+    [SerializeField] private Image documentCard;
+    [SerializeField] private Image photoFrame;
+    [SerializeField] private Image stampMarkPanel;
+    [SerializeField] private Image stampMarkTopLine;
+    [SerializeField] private Image stampMarkBottomLine;
+    [SerializeField] private Image heldStampImage;
+    [SerializeField] private Image leftTrayImage;
+    [SerializeField] private Image rightTrayImage;
+    [SerializeField] private RectTransform documentRect;
+    [SerializeField] private RectTransform soulRect;
+    [SerializeField] private RectTransform stampMarkRect;
+    [SerializeField] private RectTransform heldStampRect;
+    [SerializeField] private RectTransform leftTrayRect;
+    [SerializeField] private RectTransform rightTrayRect;
+    [SerializeField] private GameObject finalPanel;
+    [SerializeField] private GameObject startPanel;
+    [SerializeField] private Text photoText;
+    [SerializeField] private Text heldStampText;
 
     private Action<StampType> onStampSelected;
     private Action onStampTargetPressed;
@@ -854,19 +873,35 @@ public class HeavenOfficeView : MonoBehaviour
 
     public void BuildIfNeeded(bool createUiAtRuntime)
     {
-        if (!createUiAtRuntime || GetComponentInChildren<Canvas>() != null)
+        if (!createUiAtRuntime)
         {
             return;
         }
 
-        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        font = Resources.Load<Font>("Shrifts/Rubik-Bold SDF");
         if (font == null)
         {
-            font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            font = Resources.Load<Font>("Fonts & Materials/LiberationSans SDF");
         }
-        if (font == null)
+
+        LoadReferenceSprites();
+
+        Canvas existingCanvas = GetComponentInChildren<Canvas>();
+        if (existingCanvas != null && scoreText != null && documentRect != null)
         {
-            font = Font.CreateDynamicFontFromOSFont(new[] { "Arial", "Liberation Sans", "DejaVu Sans" }, 18);
+            return;
+        }
+
+        if (existingCanvas != null)
+        {
+            if (Application.isPlaying)
+            {
+                Destroy(existingCanvas.gameObject);
+            }
+            else
+            {
+                DestroyImmediate(existingCanvas.gameObject);
+            }
         }
 
         EnsureEventSystem();
@@ -882,7 +917,6 @@ public class HeavenOfficeView : MonoBehaviour
         RectTransform root = canvas.GetComponent<RectTransform>();
         Image background = canvas.gameObject.AddComponent<Image>();
         background.color = new Color(0.86f, 0.93f, 0.98f);
-        LoadReferenceSprites();
 
         RectTransform top = Panel("TopPanel", root, new Color(0.96f, 0.9f, 0.72f), Vector2.zero, Vector2.zero, Vector2.zero);
         top.anchorMin = new Vector2(0f, 1f);
@@ -932,9 +966,9 @@ public class HeavenOfficeView : MonoBehaviour
         center.offsetMax = new Vector2(-230f, -84f);
 
         AddStampButton(left, StampType.Heaven, "Рай", "HEAVEN", new Color(0.22f, 0.68f, 0.35f), -92, 0f);
-        AddStampButton(left, StampType.Appeal, "Апелляция", "APPEAL", new Color(0.94f, 0.68f, 0.16f), -248, -10f);
+        AddStampButton(left, StampType.Appeal, "Апелляция", "APPEAL", new Color(0.94f, 0.68f, 0.16f), -248, 0f);
         AddStampButton(right, StampType.Hell, "Ад", "HELL", new Color(0.78f, 0.18f, 0.14f), -92, 0f);
-        AddStampButton(right, StampType.Audit, "Проверка", "AUDIT", new Color(0.28f, 0.48f, 0.68f), -248, 10f);
+        AddStampButton(right, StampType.Audit, "Проверка", "AUDIT", new Color(0.28f, 0.48f, 0.68f), -248, 0f);
 
         soulCard = Panel("SoulCard", center, new Color(0.72f, 0.84f, 0.98f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(250f, 86f)).GetComponent<Image>();
         soulRect = soulCard.rectTransform;
@@ -1296,8 +1330,8 @@ public class HeavenOfficeView : MonoBehaviour
 
         label.text = bold ? "Подсказка: " : "Решение: ";
         label.fontSize = 18;
-        label.fontStyle = bold ? FontStyle.Bold : FontStyle.Normal;
-        label.alignment = TextAnchor.MiddleCenter;
+        label.fontStyle = bold ? FontStyles.Bold : FontStyles.Normal;
+        label.alignment = TextAlignmentOptions.Center;
         label.rectTransform.anchorMin = new Vector2(0.2f, yMin);
         label.rectTransform.anchorMax = new Vector2(0.8f, yMax);
         label.rectTransform.offsetMin = Vector2.zero;
@@ -1373,15 +1407,23 @@ public class HeavenOfficeView : MonoBehaviour
             }
         }
 
-        Texture2D stampSheet = Resources.Load<Texture2D>("HeavenOffice/stamp_sheet");
-        if (stampSheet != null)
+        Sprite[] slicedStampSprites = Resources.LoadAll<Sprite>("HeavenOffice/stamp_sheet");
+        if (slicedStampSprites != null && slicedStampSprites.Length >= 4)
         {
-            int half = stampSheet.width / 2;
-            int inset = 18;
-            stampSprites[StampType.Hell] = Sprite.Create(stampSheet, new Rect(inset, half + inset, half - inset * 2, half - inset * 2), new Vector2(0.5f, 0.5f), 100f);
-            stampSprites[StampType.Heaven] = Sprite.Create(stampSheet, new Rect(half + inset, half + inset, half - inset * 2, half - inset * 2), new Vector2(0.5f, 0.5f), 100f);
-            stampSprites[StampType.Appeal] = Sprite.Create(stampSheet, new Rect(inset, inset, half - inset * 2, half - inset * 2), new Vector2(0.5f, 0.5f), 100f);
-            stampSprites[StampType.Audit] = Sprite.Create(stampSheet, new Rect(half + inset, inset, half - inset * 2, half - inset * 2), new Vector2(0.5f, 0.5f), 100f);
+            ApplySlicedStampSprites(slicedStampSprites);
+        }
+        else
+        {
+            Texture2D stampSheet = Resources.Load<Texture2D>("HeavenOffice/stamp_sheet");
+            if (stampSheet != null)
+            {
+                int half = stampSheet.width / 2;
+                int inset = 18;
+                stampSprites[StampType.Hell] = Sprite.Create(stampSheet, new Rect(inset, half + inset, half - inset * 2, half - inset * 2), new Vector2(0.5f, 0.5f), 100f);
+                stampSprites[StampType.Heaven] = Sprite.Create(stampSheet, new Rect(half + inset, half + inset, half - inset * 2, half - inset * 2), new Vector2(0.5f, 0.5f), 100f);
+                stampSprites[StampType.Appeal] = Sprite.Create(stampSheet, new Rect(inset, inset, half - inset * 2, half - inset * 2), new Vector2(0.5f, 0.5f), 100f);
+                stampSprites[StampType.Audit] = Sprite.Create(stampSheet, new Rect(half + inset, inset, half - inset * 2, half - inset * 2), new Vector2(0.5f, 0.5f), 100f);
+            }
         }
 
         Texture2D destinationSheet = Resources.Load<Texture2D>("HeavenOffice/destination_sheet");
@@ -1392,6 +1434,33 @@ public class HeavenOfficeView : MonoBehaviour
             hellDestinationSprite = Sprite.Create(destinationSheet, new Rect(inset, inset, halfWidth - inset * 2, destinationSheet.height - inset * 2), new Vector2(0.5f, 0.5f), 100f);
             paradiseDestinationSprite = Sprite.Create(destinationSheet, new Rect(halfWidth + inset, inset, halfWidth - inset * 2, destinationSheet.height - inset * 2), new Vector2(0.5f, 0.5f), 100f);
         }
+    }
+
+    private void ApplySlicedStampSprites(Sprite[] slicedSprites)
+    {
+        Sprite[] ordered = slicedSprites
+            .OrderByDescending(sprite => sprite.rect.y)
+            .ThenBy(sprite => sprite.rect.x)
+            .ToArray();
+
+        stampSprites[StampType.Hell] = FindStampSprite(ordered, "hell", 0);
+        stampSprites[StampType.Heaven] = FindStampSprite(ordered, "heaven", 1);
+        stampSprites[StampType.Appeal] = FindStampSprite(ordered, "apl", 2, "appeal");
+        stampSprites[StampType.Audit] = FindStampSprite(ordered, "audit", 3);
+    }
+
+    private Sprite FindStampSprite(Sprite[] orderedSprites, string keyword, int fallbackIndex, string alternateKeyword = null)
+    {
+        Sprite found = orderedSprites.FirstOrDefault(sprite =>
+            sprite.name.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
+            || (!string.IsNullOrEmpty(alternateKeyword) && sprite.name.IndexOf(alternateKeyword, StringComparison.OrdinalIgnoreCase) >= 0));
+
+        if (found != null)
+        {
+            return found;
+        }
+
+        return orderedSprites[Mathf.Clamp(fallbackIndex, 0, orderedSprites.Length - 1)];
     }
 
     private void BuildDestinationTrays(RectTransform center)
@@ -1554,12 +1623,41 @@ public class HeavenOfficeView : MonoBehaviour
         label.text = text;
         label.font = font;
         label.fontSize = size;
-        label.fontStyle = style;
-        label.alignment = anchor;
+        label.fontStyle = ToTmpFontStyle(style);
+        label.alignment = ToTmpAlignment(anchor);
         label.color = color;
-        label.horizontalOverflow = HorizontalWrapMode.Wrap;
-        label.verticalOverflow = VerticalWrapMode.Truncate;
+        label.enableWordWrapping = true;
+        label.overflowMode = TextOverflowModes.Truncate;
+        label.raycastTarget = false;
         return label;
+    }
+
+    private FontStyles ToTmpFontStyle(FontStyle style)
+    {
+        switch (style)
+        {
+            case FontStyle.Bold: return FontStyles.Bold;
+            case FontStyle.Italic: return FontStyles.Italic;
+            case FontStyle.BoldAndItalic: return FontStyles.Bold | FontStyles.Italic;
+            default: return FontStyles.Normal;
+        }
+    }
+
+    private TextAlignmentOptions ToTmpAlignment(TextAnchor anchor)
+    {
+        switch (anchor)
+        {
+            case TextAnchor.UpperLeft: return TextAlignmentOptions.TopLeft;
+            case TextAnchor.UpperCenter: return TextAlignmentOptions.Top;
+            case TextAnchor.UpperRight: return TextAlignmentOptions.TopRight;
+            case TextAnchor.MiddleLeft: return TextAlignmentOptions.MidlineLeft;
+            case TextAnchor.MiddleCenter: return TextAlignmentOptions.Center;
+            case TextAnchor.MiddleRight: return TextAlignmentOptions.MidlineRight;
+            case TextAnchor.LowerLeft: return TextAlignmentOptions.BottomLeft;
+            case TextAnchor.LowerCenter: return TextAlignmentOptions.Bottom;
+            case TextAnchor.LowerRight: return TextAlignmentOptions.BottomRight;
+            default: return TextAlignmentOptions.Center;
+        }
     }
 
     private RectTransform Panel(string name, Transform parent, Color color, Vector2 anchorMin, Vector2 anchorMax, Vector2 size)
