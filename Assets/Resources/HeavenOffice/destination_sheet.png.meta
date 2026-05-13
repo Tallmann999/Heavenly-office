@@ -1,19 +1,19 @@
 fileFormatVersion: 2
-guid: f96b66d8d2baf134aa90769474aaadec
+guid: bf88ab59ef6c4514b9807b21d6ef5cee
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8971832170182992821
-    second: stamp_sheet_0
+      213: -2924050534537241842
+    second: destination_sheet_0
   - first:
-      213: -5465879078834189511
-    second: stamp_sheet_1
+      213: -8815929260699215895
+    second: destination_sheet_1
   - first:
-      213: -1007976064070825573
-    second: stamp_sheet_2
+      213: 6753146796502847618
+    second: destination_sheet_2
   - first:
-      213: -6033171212804305530
-    second: stamp_sheet_3
+      213: 4629239919392334942
+    second: destination_sheet_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -122,13 +122,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: stamp_sheet_0
+      name: destination_sheet_0
       rect:
         serializedVersion: 2
-        x: 93
-        y: 663
-        width: 487
-        height: 526
+        x: 47
+        y: 56
+        width: 801
+        height: 781
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,20 +137,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b4c12df0d26ad7380800000000000000
-      internalID: -8971832170182992821
+      spriteID: e0bdd97f78fab67d0800000000000000
+      internalID: -2924050534537241842
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: stamp_sheet_1
+      name: destination_sheet_1
       rect:
         serializedVersion: 2
-        x: 628
-        y: 641
-        width: 539
-        height: 565
+        x: 925
+        y: 51
+        width: 808
+        height: 780
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -159,52 +159,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 93b49d0ffeb4524b0800000000000000
-      internalID: -5465879078834189511
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: stamp_sheet_2
-      rect:
-        serializedVersion: 2
-        x: 66
-        y: 77
-        width: 536
-        height: 550
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b9946f63c13f202f0800000000000000
-      internalID: -1007976064070825573
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: stamp_sheet_3
-      rect:
-        serializedVersion: 2
-        x: 627
-        y: 77
-        width: 539
-        height: 550
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 68dcfaf3fbed54ca0800000000000000
-      internalID: -6033171212804305530
+      spriteID: 9e71d03db0787a580800000000000000
+      internalID: -8815929260699215895
       vertices: []
       indices: 
       edges: []
@@ -213,7 +169,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 7c0e81aca1b13bf42b6f101aa8155d79
+    spriteID: 1bdc19b9b38d559478398b934a98c047
     internalID: 0
     vertices: []
     indices: 
@@ -221,14 +177,12 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      stamp_sheet_0: -8971832170182992821
-      stamp_sheet_1: -5465879078834189511
-      stamp_sheet_2: -1007976064070825573
-      stamp_sheet_3: -6033171212804305530
+      destination_sheet_0: -2924050534537241842
+      destination_sheet_1: -8815929260699215895
+      destination_sheet_2: 6753146796502847618
+      destination_sheet_3: 4629239919392334942
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

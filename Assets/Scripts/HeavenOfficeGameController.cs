@@ -48,7 +48,7 @@ public class HeavenOfficeConfig
 {
     [Header("Session")]
     [Min(1)] public int sessionSoulCount = 12;
-    [Min(3f)] public float documentReadTimeLimit = 24f;
+    [Min(3f)] public float documentReadTimeLimit = 15f;
     [Min(0)] public int maxMistakeCount = 3;
     [Min(1)] public int difficultyRampStep = 4;
 
@@ -411,6 +411,8 @@ public class HeavenOfficeGameController : MonoBehaviour
 
     private void Awake()
     {
+        Application.targetFrameRate = 60;
+        Screen.orientation = ScreenOrientation.LandscapeLeft;
         generator = new SoulDocumentGenerator();
         analytics = new HeavenOfficeAnalyticsLog(config.enableAnalyticsLog);
         view = GetComponent<HeavenOfficeView>();
@@ -547,7 +549,7 @@ public class HeavenOfficeGameController : MonoBehaviour
         }
 
         view.UpdateHud(score, currentIndex + 1, queue.Count, mistakes, config.maxMistakeCount, combo, currentDocument.difficultyTier);
-        yield return view.PlayExitAnimation(correct ? stamp : (StampType?)null, config.exitAnimationTime);
+        yield return view.PlayExitAnimation(currentDocument.expectedStamp, config.exitAnimationTime);
         AdvanceOrEnd();
     }
 
@@ -665,6 +667,8 @@ public class HeavenOfficeView : MonoBehaviour
     private readonly Dictionary<StampType, Color> stampColors = new Dictionary<StampType, Color>();
     private readonly Dictionary<StampType, Sprite> stampSprites = new Dictionary<StampType, Sprite>();
     private readonly List<Sprite> avatarSprites = new List<Sprite>();
+    private Sprite paradiseDestinationSprite;
+    private Sprite hellDestinationSprite;
 
     private Font font;
     private Text titleText;
@@ -789,10 +793,10 @@ public class HeavenOfficeView : MonoBehaviour
         center.offsetMin = new Vector2(230f, 92f);
         center.offsetMax = new Vector2(-230f, -84f);
 
-        AddStampButton(left, StampType.Heaven, "Рай", "HEAVEN", new Color(0.22f, 0.68f, 0.35f), -95);
-        AddStampButton(left, StampType.Appeal, "Апелляция", "APPEAL", new Color(0.94f, 0.68f, 0.16f), -245);
-        AddStampButton(right, StampType.Hell, "Ад", "HELL", new Color(0.78f, 0.18f, 0.14f), -95);
-        AddStampButton(right, StampType.Audit, "Проверка", "AUDIT", new Color(0.28f, 0.48f, 0.68f), -245);
+        AddStampButton(left, StampType.Heaven, "Рай", "HEAVEN", new Color(0.22f, 0.68f, 0.35f), -92, 0f);
+        AddStampButton(left, StampType.Appeal, "Апелляция", "APPEAL", new Color(0.94f, 0.68f, 0.16f), -248, -10f);
+        AddStampButton(right, StampType.Hell, "Ад", "HELL", new Color(0.78f, 0.18f, 0.14f), -92, 0f);
+        AddStampButton(right, StampType.Audit, "Проверка", "AUDIT", new Color(0.28f, 0.48f, 0.68f), -248, 10f);
 
         soulCard = Panel("SoulCard", center, new Color(0.72f, 0.84f, 0.98f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(250f, 86f)).GetComponent<Image>();
         soulRect = soulCard.rectTransform;
@@ -1148,8 +1152,18 @@ public class HeavenOfficeView : MonoBehaviour
     private Vector2 GetPointerPosition()
     {
 #if ENABLE_INPUT_SYSTEM
+        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
+        {
+            return Touchscreen.current.primaryTouch.position.ReadValue();
+        }
+
         return Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
 #else
+        if (Input.touchCount > 0)
+        {
+            return Input.GetTouch(0).position;
+        }
+
         return Input.mousePosition;
 #endif
     }
@@ -1176,6 +1190,8 @@ public class HeavenOfficeView : MonoBehaviour
     {
         avatarSprites.Clear();
         stampSprites.Clear();
+        paradiseDestinationSprite = null;
+        hellDestinationSprite = null;
 
         Texture2D avatarSheet = Resources.Load<Texture2D>("HeavenOffice/avatar_sheet");
         if (avatarSheet != null)
@@ -1204,26 +1220,50 @@ public class HeavenOfficeView : MonoBehaviour
             stampSprites[StampType.Appeal] = Sprite.Create(stampSheet, new Rect(inset, inset, half - inset * 2, half - inset * 2), new Vector2(0.5f, 0.5f), 100f);
             stampSprites[StampType.Audit] = Sprite.Create(stampSheet, new Rect(half + inset, inset, half - inset * 2, half - inset * 2), new Vector2(0.5f, 0.5f), 100f);
         }
+
+        Texture2D destinationSheet = Resources.Load<Texture2D>("HeavenOffice/destination_sheet");
+        if (destinationSheet != null)
+        {
+            int halfWidth = destinationSheet.width / 2;
+            int inset = 18;
+            hellDestinationSprite = Sprite.Create(destinationSheet, new Rect(inset, inset, halfWidth - inset * 2, destinationSheet.height - inset * 2), new Vector2(0.5f, 0.5f), 100f);
+            paradiseDestinationSprite = Sprite.Create(destinationSheet, new Rect(halfWidth + inset, inset, halfWidth - inset * 2, destinationSheet.height - inset * 2), new Vector2(0.5f, 0.5f), 100f);
+        }
     }
 
     private void BuildDestinationTrays(RectTransform center)
     {
-        Transform root = center.root;
-        leftTrayRect = Panel("LeftDestinationTray", root, new Color(0.18f, 0.56f, 0.28f, 0.82f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(118f, 118f));
+        Canvas canvas = center.GetComponentInParent<Canvas>();
+        Transform trayParent = canvas != null ? canvas.transform : center;
+        leftTrayRect = Panel("LeftDestinationTray", trayParent, new Color(0.18f, 0.56f, 0.28f, 0.82f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(150f, 150f));
         leftTrayRect.pivot = new Vector2(0f, 0f);
-        leftTrayRect.anchoredPosition = new Vector2(20f, 108f);
+        leftTrayRect.anchoredPosition = new Vector2(14f, 14f);
         leftTrayImage = leftTrayRect.GetComponent<Image>();
+        if (paradiseDestinationSprite != null)
+        {
+            leftTrayImage.sprite = paradiseDestinationSprite;
+            leftTrayImage.preserveAspect = true;
+            leftTrayImage.color = Color.white;
+        }
         leftTrayImage.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.55f);
         Text leftLabel = Label("PARADISE\nOUT", leftTrayRect, 15, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
         Stretch(leftLabel.rectTransform, 6, 6, 6, 6);
+        leftLabel.gameObject.SetActive(paradiseDestinationSprite == null);
 
-        rightTrayRect = Panel("RightDestinationTray", root, new Color(0.78f, 0.1f, 0.08f, 0.82f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(118f, 118f));
+        rightTrayRect = Panel("RightDestinationTray", trayParent, new Color(0.78f, 0.1f, 0.08f, 0.82f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(150f, 150f));
         rightTrayRect.pivot = new Vector2(1f, 0f);
-        rightTrayRect.anchoredPosition = new Vector2(-20f, 108f);
+        rightTrayRect.anchoredPosition = new Vector2(-14f, 14f);
         rightTrayImage = rightTrayRect.GetComponent<Image>();
+        if (hellDestinationSprite != null)
+        {
+            rightTrayImage.sprite = hellDestinationSprite;
+            rightTrayImage.preserveAspect = true;
+            rightTrayImage.color = Color.white;
+        }
         rightTrayImage.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.55f);
         Text rightLabel = Label("HELL\nOUT", rightTrayRect, 15, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
         Stretch(rightLabel.rectTransform, 6, 6, 6, 6);
+        rightLabel.gameObject.SetActive(hellDestinationSprite == null);
     }
 
     private void BuildHeldStamp(RectTransform root)
@@ -1266,10 +1306,11 @@ public class HeavenOfficeView : MonoBehaviour
         Stretch(startText.rectTransform, 6, 6, 6, 6);
     }
 
-    private void AddStampButton(RectTransform parent, StampType stamp, string label, string mark, Color color, float y)
+    private void AddStampButton(RectTransform parent, StampType stamp, string label, string mark, Color color, float y, float x)
     {
-        RectTransform rect = Panel(stamp + "Stamp", parent, color, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(176f, 112f));
-        rect.anchoredPosition = new Vector2(0f, y);
+        RectTransform rect = Panel(stamp + "Stamp", parent, color, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(132f, 132f));
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = new Vector2(x, y);
         Image image = rect.GetComponent<Image>();
         bool hasStampSprite = stampSprites.TryGetValue(stamp, out Sprite stampSprite);
         if (hasStampSprite)
@@ -1277,7 +1318,7 @@ public class HeavenOfficeView : MonoBehaviour
             image.sprite = stampSprite;
             image.preserveAspect = true;
             image.color = Color.white;
-            rect.sizeDelta = new Vector2(172f, 142f);
+            rect.sizeDelta = new Vector2(132f, 132f);
         }
         image.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.28f);
         Button button = rect.gameObject.AddComponent<Button>();
