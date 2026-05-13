@@ -83,6 +83,7 @@ public class HeavenOfficeConfig
 public class SoulDocumentData
 {
     public string soulName;
+    public int age;
     public string lifeSummary;
     public List<string> goodActs = new List<string>();
     public List<string> badActs = new List<string>();
@@ -334,6 +335,7 @@ public class SoulDocumentGenerator
         return new SoulDocumentData
         {
             soulName = PickName(seedOffset, language),
+            age = random.Next(35, 91),
             lifeSummary = PickSummary(language),
             goodActs = Pick(GetGoodActs(language), goodCount),
             badActs = Pick(GetBadActs(language), badCount),
@@ -350,6 +352,7 @@ public class SoulDocumentGenerator
         return new SoulDocumentData
         {
             soulName = GetNames(language)[index % GetNames(language).Length],
+            age = random.Next(35, 91),
             lifeSummary = GetSummaries(language)[index % GetSummaries(language).Length],
             goodActs = Pick(GetGoodActs(language), heaven ? 3 : 1),
             badActs = Pick(GetBadActs(language), heaven ? 1 : 3),
@@ -989,7 +992,7 @@ public class HeavenOfficeView : MonoBehaviour
         documentButton.transition = Selectable.Transition.ColorTint;
         documentButton.onClick.AddListener(() => onStampTargetPressed?.Invoke());
 
-        documentText = Label("", documentRect, 16, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.18f, 0.16f, 0.13f));
+        documentText = Label("", documentRect, 18, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.18f, 0.16f, 0.13f));
         Stretch(documentText.rectTransform, 26, 142, 22, -24);
 
         photoFrame = Panel("SoulPhotoSlot", documentRect, new Color(0.9f, 0.88f, 0.76f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(104f, 124f)).GetComponent<Image>();
@@ -1071,8 +1074,8 @@ public class HeavenOfficeView : MonoBehaviour
 
         soulText.text = language == HeavenOfficeLanguage.English ? $"{document.soulName}\ncase {current}/{total}" : $"{document.soulName}\nдело {current}/{total}";
         documentText.text = language == HeavenOfficeLanguage.English
-            ? $"SOUL DOCUMENT\nName: {document.soulName}\nLife: {document.lifeSummary}\n\nGood acts:\n{BulletList(document.goodActs)}\n\nBad acts:\n{BulletList(document.badActs)}\n\nSpecial notes:\n{tags}"
-            : $"ДОКУМЕНТ ДУШИ\nИмя: {document.soulName}\nЖизнь: {document.lifeSummary}\n\nХорошие поступки:\n{BulletList(document.goodActs)}\n\nПлохие поступки:\n{BulletList(document.badActs)}\n\nОсобые пометки:\n{tags}";
+            ? $"{DocTitle("SOUL DOCUMENT")}\n{DocHead("Name")}: {document.soulName}\n{DocHead("Age")}: {document.age}\n{DocHead("Life")}: {document.lifeSummary}\n\n{DocHead("Good acts")}:\n{BulletList(document.goodActs)}\n\n{DocHead("Bad acts")}:\n{BulletList(document.badActs)}\n\n{DocHead("Special notes")}:\n{tags}"
+            : $"{DocTitle("ДОКУМЕНТ ДУШИ")}\n{DocHead("Имя")}: {document.soulName}\n{DocHead("Возраст")}: {document.age}\n{DocHead("Жизнь")}: {document.lifeSummary}\n\n{DocHead("Хорошие поступки")}:\n{BulletList(document.goodActs)}\n\n{DocHead("Плохие поступки")}:\n{BulletList(document.badActs)}\n\n{DocHead("Особые приметы")}:\n{tags}";
     }
 
     public void UpdateHud(int score, int current, int total, int mistakes, int maxMistakes, int combo, int tier, HeavenOfficeLanguage language)
@@ -1689,6 +1692,16 @@ public class HeavenOfficeView : MonoBehaviour
     private string BulletList(List<string> items)
     {
         return string.Join("\n", items.Select(item => "• " + item));
+    }
+
+    private string DocHead(string text)
+    {
+        return $"<b><size=18><color=#5B4A25>{text}</color></size></b>";
+    }
+
+    private string DocTitle(string text)
+    {
+        return $"<b><size=18><color=#3F3522>{text}</color></size></b>";
     }
 
     private string BuildPhotoInitials(string soulName)
