@@ -43,6 +43,12 @@ public enum SessionEndReason
     ManualRestart
 }
 
+public enum HeavenOfficeLanguage
+{
+    English,
+    Russian
+}
+
 [Serializable]
 public class HeavenOfficeConfig
 {
@@ -237,13 +243,13 @@ public class SoulDocumentGenerator
         { SoulDocumentTag.UrgentCase, "срочное дело: очередь нервничает" }
     };
 
-    public List<SoulDocumentData> BuildSession(HeavenOfficeConfig config)
+    public List<SoulDocumentData> BuildSession(HeavenOfficeConfig config, HeavenOfficeLanguage language)
     {
         var result = new List<SoulDocumentData>();
         for (int i = 0; i < config.sessionSoulCount; i++)
         {
             int tier = Mathf.Clamp(i / Mathf.Max(1, config.difficultyRampStep), 0, 3);
-            result.Add(CreateDocument(tier, config, i));
+            result.Add(CreateDocument(tier, config, i, language));
         }
 
         return result;
@@ -254,15 +260,33 @@ public class SoulDocumentGenerator
         return tagDescriptions.TryGetValue(tag, out string description) ? description : "особых пометок нет";
     }
 
-    private SoulDocumentData CreateDocument(int tier, HeavenOfficeConfig config, int index)
+    public string GetTagDescription(SoulDocumentTag tag, HeavenOfficeLanguage language)
+    {
+        if (language == HeavenOfficeLanguage.English)
+        {
+            switch (tag)
+            {
+                case SoulDocumentTag.SelfishGoodActs: return "some good deeds were done for profit";
+                case SoulDocumentTag.ForgivenBadAct: return "one bad deed was officially forgiven";
+                case SoulDocumentTag.IncompleteSignature: return "earth archive signature is incomplete";
+                case SoulDocumentTag.ArchiveError: return "archive card contains an error";
+                case SoulDocumentTag.UrgentCase: return "urgent case: the queue is restless";
+                default: return "no special notes";
+            }
+        }
+
+        return GetTagDescription(tag);
+    }
+
+    private SoulDocumentData CreateDocument(int tier, HeavenOfficeConfig config, int index, HeavenOfficeLanguage language)
     {
         var available = HeavenOfficeRulesEvaluator.GetAvailableStamps(tier);
         for (int attempt = 0; attempt < 40; attempt++)
         {
-            SoulDocumentData document = BuildCandidate(tier, config, index + attempt);
+            SoulDocumentData document = BuildCandidate(tier, config, index + attempt, language);
             RuleEvaluation evaluation = HeavenOfficeRulesEvaluator.Evaluate(document, available);
             document.expectedStamp = evaluation.expectedStamp;
-            document.ruleExplanation = BuildHint(document, evaluation.explanation);
+            document.ruleExplanation = BuildHint(document, evaluation.explanation, language);
 
             if (available.Contains(document.expectedStamp) && (tier >= 2 || document.expectedStamp == StampType.Heaven || document.expectedStamp == StampType.Hell))
             {
@@ -270,14 +294,14 @@ public class SoulDocumentGenerator
             }
         }
 
-        SoulDocumentData fallback = BuildSimpleCandidate(tier, config, index);
+        SoulDocumentData fallback = BuildSimpleCandidate(tier, config, index, language);
         RuleEvaluation fallbackEvaluation = HeavenOfficeRulesEvaluator.Evaluate(fallback, available);
         fallback.expectedStamp = fallbackEvaluation.expectedStamp;
-        fallback.ruleExplanation = BuildHint(fallback, fallbackEvaluation.explanation);
+        fallback.ruleExplanation = BuildHint(fallback, fallbackEvaluation.explanation, language);
         return fallback;
     }
 
-    private SoulDocumentData BuildCandidate(int tier, HeavenOfficeConfig config, int seedOffset)
+    private SoulDocumentData BuildCandidate(int tier, HeavenOfficeConfig config, int seedOffset, HeavenOfficeLanguage language)
     {
         int goodCount = tier == 0 ? random.Next(2, 4) : random.Next(1, 4);
         int badCount = tier == 0 ? random.Next(0, 2) : random.Next(1, 4);
@@ -306,26 +330,26 @@ public class SoulDocumentGenerator
 
         return new SoulDocumentData
         {
-            soulName = names[(seedOffset + random.Next(names.Length)) % names.Length],
-            lifeSummary = summaries[random.Next(summaries.Length)],
-            goodActs = Pick(goodActs, goodCount),
-            badActs = Pick(badActs, badCount),
+            soulName = PickName(seedOffset, language),
+            lifeSummary = PickSummary(language),
+            goodActs = Pick(GetGoodActs(language), goodCount),
+            badActs = Pick(GetBadActs(language), badCount),
             tags = tags,
             difficultyTier = tier,
             timeLimit = CalculateTimeLimit(config, tier, tags)
         };
     }
 
-    private SoulDocumentData BuildSimpleCandidate(int tier, HeavenOfficeConfig config, int index)
+    private SoulDocumentData BuildSimpleCandidate(int tier, HeavenOfficeConfig config, int index, HeavenOfficeLanguage language)
     {
         bool heaven = index % 2 == 0;
         var tags = new List<SoulDocumentTag>();
         return new SoulDocumentData
         {
-            soulName = names[index % names.Length],
-            lifeSummary = summaries[index % summaries.Length],
-            goodActs = Pick(goodActs, heaven ? 3 : 1),
-            badActs = Pick(badActs, heaven ? 1 : 3),
+            soulName = GetNames(language)[index % GetNames(language).Length],
+            lifeSummary = GetSummaries(language)[index % GetSummaries(language).Length],
+            goodActs = Pick(GetGoodActs(language), heaven ? 3 : 1),
+            badActs = Pick(GetBadActs(language), heaven ? 1 : 3),
             tags = tags,
             difficultyTier = tier,
             timeLimit = CalculateTimeLimit(config, tier, tags)
@@ -348,14 +372,101 @@ public class SoulDocumentGenerator
         return Mathf.Max(4f, time);
     }
 
-    private string BuildHint(SoulDocumentData document, string evaluation)
+    private string BuildHint(SoulDocumentData document, string evaluation, HeavenOfficeLanguage language)
     {
+        if (language == HeavenOfficeLanguage.English)
+        {
+            if (document.tags.Contains(SoulDocumentTag.ArchiveError)) return "Archive error: use Audit.";
+            if (document.tags.Contains(SoulDocumentTag.IncompleteSignature)) return "Incomplete signature: use Appeal.";
+            if (document.tags.Contains(SoulDocumentTag.SelfishGoodActs)) return "Selfish good deed: ignore one good act.";
+            if (document.tags.Contains(SoulDocumentTag.ForgivenBadAct)) return "Forgiven bad deed: ignore one bad act.";
+            if (document.tags.Contains(SoulDocumentTag.UrgentCase)) return "Urgent case: less time, same rule.";
+            return "More good acts means Heaven. More bad acts means Hell.";
+        }
+
         if (document.tags.Contains(SoulDocumentTag.ArchiveError)) return "Пометка «Архивная ошибка» отправляет дело на «Проверку».";
         if (document.tags.Contains(SoulDocumentTag.IncompleteSignature)) return "Пометка «Неполная подпись» отправляет дело на «Апелляцию».";
         if (document.tags.Contains(SoulDocumentTag.SelfishGoodActs)) return "Особая пометка «Корысть»: один добрый поступок не учитывается.";
         if (document.tags.Contains(SoulDocumentTag.ForgivenBadAct)) return "Пометка «Прощённый поступок»: один плохой поступок не учитывается.";
         if (document.tags.Contains(SoulDocumentTag.UrgentCase)) return "Срочное дело: времени меньше, правило морали прежнее.";
         return "Базовое правило: если хороших поступков больше, ставь «Рай». Если плохих больше, ставь «Ад».";
+    }
+
+    private readonly string[] englishNames =
+    {
+        "Agatha Quill", "Peter Gale", "Martha Bell", "Gregory Ledger",
+        "Nina Clerk", "Simon Halo", "Irene Feather", "Thomas Stamp",
+        "Leonid Binder", "Vera Cloud", "Clement Forms", "Alice Nimbus"
+    };
+
+    private readonly string[] englishSummaries =
+    {
+        "kept receipts in perfect order", "worked as an accountant and trusted folders",
+        "ran a bakery near the tram stop", "fixed umbrellas and excuses",
+        "managed a building chat with suspicious energy", "taught children math and adults patience",
+        "drove a bus and collected lost mittens", "wrote beautiful applications",
+        "worked in an archive and feared empty shelves", "planted flowers where signs said no",
+        "lived fast but filed every receipt", "sang in a choir and sometimes argued with melody"
+    };
+
+    private readonly string[] englishGoodActs =
+    {
+        "returned a lost wallet", "helped a neighbor carry groceries",
+        "gave up a seat on a crowded bus", "did not cheat on an exam",
+        "fed stray animals", "reconciled two old friends",
+        "paid taxes without dramatic sighs", "turned in a found phone",
+        "planted trees in the yard", "protected an intern at a meeting",
+        "fixed an elevator without leaving a complaint", "bought medicine for an elderly neighbor",
+        "admitted a mistake in a report", "saved a family photo album from fire",
+        "kept quiet during someone else's sleep", "helped a grandmother with online banking",
+        "shared an umbrella at the gate", "donated a bonus for a coworker's treatment",
+        "trained newcomers without sarcasm", "left honest tips"
+    };
+
+    private readonly string[] englishBadActs =
+    {
+        "parked in a spot reserved for angels", "lied on a tax declaration",
+        "used a drill at 7 a.m.", "stole office cookies and blamed an intern",
+        "interrupted every family council", "forged signatures in the halo log",
+        "left a shopping cart in the road", "sold broken umbrellas as antiques",
+        "did not return library books", "spread rumors in the queue",
+        "hid other people's mugs in the archive", "broke the shared office kettle",
+        "promised help and vanished until Monday", "drew mustaches on director portraits",
+        "boosted reviews for their own bakery", "argued with doctors in comment sections",
+        "claimed other people's ideas", "forgot to turn off music at night",
+        "marked every paper as urgent", "blamed mistakes on the printer"
+    };
+
+    private string[] GetNames(HeavenOfficeLanguage language)
+    {
+        return language == HeavenOfficeLanguage.English ? englishNames : names;
+    }
+
+    private string[] GetSummaries(HeavenOfficeLanguage language)
+    {
+        return language == HeavenOfficeLanguage.English ? englishSummaries : summaries;
+    }
+
+    private string[] GetGoodActs(HeavenOfficeLanguage language)
+    {
+        return language == HeavenOfficeLanguage.English ? englishGoodActs : goodActs;
+    }
+
+    private string[] GetBadActs(HeavenOfficeLanguage language)
+    {
+        return language == HeavenOfficeLanguage.English ? englishBadActs : badActs;
+    }
+
+    private string PickName(int seedOffset, HeavenOfficeLanguage language)
+    {
+        string[] pool = GetNames(language);
+        return pool[(seedOffset + random.Next(pool.Length)) % pool.Length];
+    }
+
+    private string PickSummary(HeavenOfficeLanguage language)
+    {
+        string[] pool = GetSummaries(language);
+        return pool[random.Next(pool.Length)];
     }
 
     private List<string> Pick(string[] source, int count)
@@ -408,6 +519,7 @@ public class HeavenOfficeGameController : MonoBehaviour
     private int correctDecisions;
     private int combo;
     private int maxCombo;
+    private HeavenOfficeLanguage language = HeavenOfficeLanguage.Russian;
 
     private void Awake()
     {
@@ -425,7 +537,7 @@ public class HeavenOfficeGameController : MonoBehaviour
     private void Start()
     {
         view.BuildIfNeeded(config.createUiAtRuntime);
-        view.Bind(OnStampSelected, OnStampTargetPressed, StartSession, RestartSession);
+        view.Bind(OnStampSelected, OnStampTargetPressed, OnLanguageSelected, StartSession, RestartSession);
         sessionEnded = true;
         inputLocked = true;
         view.ShowStartMenu();
@@ -462,7 +574,7 @@ public class HeavenOfficeGameController : MonoBehaviour
         correctDecisions = 0;
         combo = 0;
         maxCombo = 0;
-        queue = generator.BuildSession(config);
+        queue = generator.BuildSession(config, language);
         view.HideStartMenu();
         view.HideFinalPanel();
         analytics.Log("session_start");
@@ -482,13 +594,13 @@ public class HeavenOfficeGameController : MonoBehaviour
         selectedStamp = null;
         inputLocked = false;
         var available = HeavenOfficeRulesEvaluator.GetAvailableStamps(currentDocument.difficultyTier);
-        view.ShowDocument(currentDocument, generator, currentIndex + 1, queue.Count);
-        view.UpdateHud(score, currentIndex + 1, queue.Count, mistakes, config.maxMistakeCount, combo, currentDocument.difficultyTier);
+        view.ShowDocument(currentDocument, generator, currentIndex + 1, queue.Count, language);
+        view.UpdateHud(score, currentIndex + 1, queue.Count, mistakes, config.maxMistakeCount, combo, currentDocument.difficultyTier, language);
         view.UpdateTimer(remainingTime, currentDocument.timeLimit);
         view.SetRuleHint(currentDocument.ruleExplanation);
         view.SetStampAvailability(available);
         view.HighlightSelectedStamp(null);
-        view.SetFeedback("Последнее решение: ожидается печать.", new Color(0.25f, 0.27f, 0.3f));
+        view.SetFeedback(language == HeavenOfficeLanguage.English ? "Waiting for a stamp." : "Ожидается печать.", new Color(0.25f, 0.27f, 0.3f), language);
         analytics.Log("document_shown", currentDocument, null, null, 0f, currentDocument.difficultyTier);
     }
 
@@ -499,7 +611,7 @@ public class HeavenOfficeGameController : MonoBehaviour
         var available = HeavenOfficeRulesEvaluator.GetAvailableStamps(currentDocument.difficultyTier);
         if (!available.Contains(stamp))
         {
-            view.SetFeedback("Эта печать пока опечатана регламентом сложности.", new Color(0.35f, 0.35f, 0.4f));
+            view.SetFeedback(language == HeavenOfficeLanguage.English ? "This stamp is locked by the current tier." : "Эта печать пока закрыта регламентом сложности.", new Color(0.35f, 0.35f, 0.4f), language);
             return;
         }
 
@@ -515,7 +627,7 @@ public class HeavenOfficeGameController : MonoBehaviour
 
         if (!selectedStamp.HasValue)
         {
-            view.SetFeedback("Сначала выбери печать в боковой панели.", new Color(0.45f, 0.34f, 0.12f));
+            view.SetFeedback(language == HeavenOfficeLanguage.English ? "Choose a stamp first." : "Сначала выбери печать.", new Color(0.45f, 0.34f, 0.12f), language);
             return;
         }
 
@@ -538,17 +650,17 @@ public class HeavenOfficeGameController : MonoBehaviour
             combo++;
             correctDecisions++;
             maxCombo = Mathf.Max(maxCombo, combo);
-            view.SetFeedback($"Верно: {StampLabel(stamp)}. +{gain} очков.", new Color(0.1f, 0.48f, 0.2f));
+            view.SetFeedback(language == HeavenOfficeLanguage.English ? $"Correct: {StampLabel(stamp)}. +{gain} points." : $"Верно: {StampLabel(stamp)}. +{gain} очков.", new Color(0.1f, 0.48f, 0.2f), language);
             analytics.Log("decision_correct", currentDocument, stamp, DecisionResultType.Correct, reactionTime, currentDocument.difficultyTier);
         }
         else
         {
             Penalize();
-            view.SetFeedback($"Ошибка: нужна печать «{StampLabel(currentDocument.expectedStamp)}». -{config.mistakePenalty}.", new Color(0.68f, 0.12f, 0.1f));
+            view.SetFeedback(language == HeavenOfficeLanguage.English ? $"Wrong: needed {StampLabel(currentDocument.expectedStamp)}. -{config.mistakePenalty}." : $"Ошибка: нужна печать «{StampLabel(currentDocument.expectedStamp)}». -{config.mistakePenalty}.", new Color(0.68f, 0.12f, 0.1f), language);
             analytics.Log("decision_wrong", currentDocument, stamp, DecisionResultType.WrongStamp, reactionTime, currentDocument.difficultyTier);
         }
 
-        view.UpdateHud(score, currentIndex + 1, queue.Count, mistakes, config.maxMistakeCount, combo, currentDocument.difficultyTier);
+        view.UpdateHud(score, currentIndex + 1, queue.Count, mistakes, config.maxMistakeCount, combo, currentDocument.difficultyTier, language);
         yield return view.PlayExitAnimation(currentDocument.expectedStamp, config.exitAnimationTime);
         AdvanceOrEnd();
     }
@@ -560,9 +672,9 @@ public class HeavenOfficeGameController : MonoBehaviour
         view.UpdateTimer(0f, currentDocument.timeLimit);
         view.ShowSpoiledStamp();
         Penalize();
-        view.SetFeedback($"Время вышло. Дело ушло в стопку испорченных. -{config.mistakePenalty}.", new Color(0.55f, 0.2f, 0.16f));
+        view.SetFeedback(language == HeavenOfficeLanguage.English ? $"Time expired. -{config.mistakePenalty}." : $"Время вышло. -{config.mistakePenalty}.", new Color(0.55f, 0.2f, 0.16f), language);
         analytics.Log("time_expired", currentDocument, null, DecisionResultType.TimeExpired, currentDocument.timeLimit, currentDocument.difficultyTier);
-        view.UpdateHud(score, currentIndex + 1, queue.Count, mistakes, config.maxMistakeCount, combo, currentDocument.difficultyTier);
+        view.UpdateHud(score, currentIndex + 1, queue.Count, mistakes, config.maxMistakeCount, combo, currentDocument.difficultyTier, language);
         yield return new WaitForSeconds(config.reactionDelay);
         yield return view.PlayExitAnimation(null, config.exitAnimationTime);
         AdvanceOrEnd();
@@ -615,8 +727,16 @@ public class HeavenOfficeGameController : MonoBehaviour
         currentDocument = null;
         view.HideHeldStamp();
         analytics.Log("session_end");
-        string title = reason == SessionEndReason.TooManyMistakes ? "Смена провалена" : "Смена завершена";
-        view.ShowFinalPanel(title, score, correctDecisions, mistakes, maxCombo, reason);
+        string title = reason == SessionEndReason.TooManyMistakes
+            ? (language == HeavenOfficeLanguage.English ? "Shift Failed" : "Смена провалена")
+            : (language == HeavenOfficeLanguage.English ? "Shift Complete" : "Смена завершена");
+        view.ShowFinalPanel(title, score, correctDecisions, mistakes, maxCombo, reason, language);
+    }
+
+    private void OnLanguageSelected(HeavenOfficeLanguage selectedLanguage)
+    {
+        language = selectedLanguage;
+        view.ApplyLanguage(language);
     }
 
     private void RestartSession()
@@ -648,6 +768,18 @@ public class HeavenOfficeGameController : MonoBehaviour
 
     private string StampLabel(StampType stamp)
     {
+        if (language == HeavenOfficeLanguage.English)
+        {
+            switch (stamp)
+            {
+                case StampType.Heaven: return "Heaven";
+                case StampType.Hell: return "Hell";
+                case StampType.Appeal: return "Appeal";
+                case StampType.Audit: return "Audit";
+                default: return stamp.ToString();
+            }
+        }
+
         switch (stamp)
         {
             case StampType.Heaven: return "Рай";
@@ -688,6 +820,10 @@ public class HeavenOfficeView : MonoBehaviour
     private Text finalTitleText;
     private Text finalStatsText;
     private Text startTitleText;
+    private Text startSubtitleText;
+    private Text startButtonText;
+    private Text restartButtonText;
+    private GameObject startButtonObject;
     private Image timerFill;
     private Image soulCard;
     private Image documentCard;
@@ -711,8 +847,10 @@ public class HeavenOfficeView : MonoBehaviour
 
     private Action<StampType> onStampSelected;
     private Action onStampTargetPressed;
+    private Action<HeavenOfficeLanguage> onLanguageSelected;
     private Action onStart;
     private Action onRestart;
+    private HeavenOfficeLanguage currentLanguage = HeavenOfficeLanguage.Russian;
 
     public void BuildIfNeeded(bool createUiAtRuntime)
     {
@@ -854,10 +992,11 @@ public class HeavenOfficeView : MonoBehaviour
         CompactTopPanel();
     }
 
-    public void Bind(Action<StampType> stampSelected, Action stampTargetPressed, Action start, Action restart)
+    public void Bind(Action<StampType> stampSelected, Action stampTargetPressed, Action<HeavenOfficeLanguage> languageSelected, Action start, Action restart)
     {
         onStampSelected = stampSelected;
         onStampTargetPressed = stampTargetPressed;
+        onLanguageSelected = languageSelected;
         onStart = start;
         onRestart = restart;
         foreach (var pair in stampButtons)
@@ -868,8 +1007,9 @@ public class HeavenOfficeView : MonoBehaviour
         }
     }
 
-    public void ShowDocument(SoulDocumentData document, SoulDocumentGenerator generator, int current, int total)
+    public void ShowDocument(SoulDocumentData document, SoulDocumentGenerator generator, int current, int total, HeavenOfficeLanguage language)
     {
+        currentLanguage = language;
         documentRect.anchoredPosition = new Vector2(0f, -40f);
         soulRect.anchoredPosition = new Vector2(0f, -72f);
         documentCard.color = new Color(1f, 0.97f, 0.84f);
@@ -888,36 +1028,33 @@ public class HeavenOfficeView : MonoBehaviour
             photoText.text = BuildPhotoInitials(document.soulName) + "\n\nФОТО";
         }
         HideHeldStamp();
-        reactionText.text = "Душа ожидает решения канцелярии.";
-        targetZoneText.text = "ЗОНА УДАРА ПЕЧАТЬЮ";
+        reactionText.text = language == HeavenOfficeLanguage.English ? "The soul awaits the office decision." : "Душа ожидает решения канцелярии.";
+        targetZoneText.text = language == HeavenOfficeLanguage.English ? "STAMP TARGET ZONE" : "ЗОНА УДАРА ПЕЧАТЬЮ";
 
         string tags = document.tags.Count == 0
-            ? "особых пометок нет"
-            : string.Join("\n", document.tags.Select(tag => "• " + generator.GetTagDescription(tag)));
+            ? (language == HeavenOfficeLanguage.English ? "no special notes" : "особых пометок нет")
+            : string.Join("\n", document.tags.Select(tag => "• " + generator.GetTagDescription(tag, language)));
 
-        soulText.text = $"{document.soulName}\nдело {current}/{total}";
-        documentText.text =
-            $"ДОКУМЕНТ ДУШИ\n" +
-            $"Имя: {document.soulName}\n" +
-            $"Жизнь: {document.lifeSummary}\n\n" +
-            $"Хорошие поступки:\n{BulletList(document.goodActs)}\n\n" +
-            $"Плохие поступки:\n{BulletList(document.badActs)}\n\n" +
-            $"Особые пометки:\n{tags}";
+        soulText.text = language == HeavenOfficeLanguage.English ? $"{document.soulName}\ncase {current}/{total}" : $"{document.soulName}\nдело {current}/{total}";
+        documentText.text = language == HeavenOfficeLanguage.English
+            ? $"SOUL DOCUMENT\nName: {document.soulName}\nLife: {document.lifeSummary}\n\nGood acts:\n{BulletList(document.goodActs)}\n\nBad acts:\n{BulletList(document.badActs)}\n\nSpecial notes:\n{tags}"
+            : $"ДОКУМЕНТ ДУШИ\nИмя: {document.soulName}\nЖизнь: {document.lifeSummary}\n\nХорошие поступки:\n{BulletList(document.goodActs)}\n\nПлохие поступки:\n{BulletList(document.badActs)}\n\nОсобые пометки:\n{tags}";
     }
 
-    public void UpdateHud(int score, int current, int total, int mistakes, int maxMistakes, int combo, int tier)
+    public void UpdateHud(int score, int current, int total, int mistakes, int maxMistakes, int combo, int tier, HeavenOfficeLanguage language)
     {
-        scoreText.text = $"Счёт: {score}";
-        queueText.text = $"Очередь: {current}/{total}";
-        mistakesText.text = $"Ошибки: {mistakes}/{maxMistakes}";
-        comboText.text = $"Серия: {combo}";
+        currentLanguage = language;
+        scoreText.text = language == HeavenOfficeLanguage.English ? $"Score: {score}" : $"Счёт: {score}";
+        queueText.text = language == HeavenOfficeLanguage.English ? $"Queue: {current}/{total}" : $"Очередь: {current}/{total}";
+        mistakesText.text = language == HeavenOfficeLanguage.English ? $"Errors: {mistakes}/{maxMistakes}" : $"Ошибки: {mistakes}/{maxMistakes}";
+        comboText.text = language == HeavenOfficeLanguage.English ? $"Combo: {combo}" : $"Серия: {combo}";
         tierText.text = $"Tier {tier}";
     }
 
     public void UpdateTimer(float remaining, float limit)
     {
         float ratio = Mathf.Clamp01(remaining / Mathf.Max(0.01f, limit));
-        timerText.text = $"Таймер: {Mathf.Max(0f, remaining):0.0}";
+        timerText.text = currentLanguage == HeavenOfficeLanguage.English ? $"Timer: {Mathf.Max(0f, remaining):0.0}" : $"Таймер: {Mathf.Max(0f, remaining):0.0}";
         timerText.color = ratio <= 0.25f ? new Color(0.86f, 0.12f, 0.1f) : new Color(0.18f, 0.22f, 0.26f);
         timerFill.color = ratio <= 0.25f ? new Color(0.88f, 0.16f, 0.12f) : new Color(0.2f, 0.58f, 0.82f);
         timerFill.rectTransform.anchorMax = new Vector2(ratio, 1f);
@@ -925,12 +1062,13 @@ public class HeavenOfficeView : MonoBehaviour
 
     public void SetRuleHint(string hint)
     {
-        ruleHintText.text = "Подсказка правила: " + hint;
+        ruleHintText.text = (currentLanguage == HeavenOfficeLanguage.English ? "Hint: " : "Подсказка: ") + hint;
     }
 
-    public void SetFeedback(string feedback, Color color)
+    public void SetFeedback(string feedback, Color color, HeavenOfficeLanguage language = HeavenOfficeLanguage.Russian)
     {
-        feedbackText.text = "Последнее решение: " + feedback;
+        currentLanguage = language;
+        feedbackText.text = (language == HeavenOfficeLanguage.English ? "Decision: " : "Решение: ") + feedback;
         feedbackText.color = color;
     }
 
@@ -1015,7 +1153,7 @@ public class HeavenOfficeView : MonoBehaviour
         stampMarkTopLine.color = new Color(0.45f, 0.32f, 0.25f, 0.55f);
         stampMarkBottomLine.color = new Color(0.45f, 0.32f, 0.25f, 0.55f);
         documentCard.color = new Color(0.78f, 0.74f, 0.66f);
-        reactionText.text = "Документ покрывается бюрократической пылью.";
+        reactionText.text = currentLanguage == HeavenOfficeLanguage.English ? "The document gathers bureaucratic dust." : "Документ покрывается бюрократической пылью.";
     }
 
     public IEnumerator PlayExitAnimation(StampType? stamp, float duration)
@@ -1033,16 +1171,13 @@ public class HeavenOfficeView : MonoBehaviour
         }
     }
 
-    public void ShowFinalPanel(string title, int score, int correct, int mistakes, int maxCombo, SessionEndReason reason)
+    public void ShowFinalPanel(string title, int score, int correct, int mistakes, int maxCombo, SessionEndReason reason, HeavenOfficeLanguage language)
     {
         finalPanel.SetActive(true);
         finalTitleText.text = title;
-        finalStatsText.text =
-            $"Итоговый счёт: {score}\n" +
-            $"Верных решений: {correct}\n" +
-            $"Ошибок: {mistakes}\n" +
-            $"Лучшая серия: {maxCombo}\n" +
-            $"Причина: {SessionReasonLabel(reason)}";
+        finalStatsText.text = language == HeavenOfficeLanguage.English
+            ? $"Final score: {score}\nCorrect decisions: {correct}\nErrors: {mistakes}\nBest combo: {maxCombo}\nReason: {SessionReasonLabel(reason, language)}"
+            : $"Итоговый счёт: {score}\nВерных решений: {correct}\nОшибок: {mistakes}\nЛучшая серия: {maxCombo}\nПричина: {SessionReasonLabel(reason, language)}";
     }
 
     public void HideFinalPanel()
@@ -1058,6 +1193,10 @@ public class HeavenOfficeView : MonoBehaviour
         if (startPanel != null)
         {
             startPanel.SetActive(true);
+            if (startButtonObject != null)
+            {
+                startButtonObject.SetActive(false);
+            }
         }
     }
 
@@ -1104,6 +1243,30 @@ public class HeavenOfficeView : MonoBehaviour
         if (heldStampRect == null || !heldStampRect.gameObject.activeSelf) return;
 
         heldStampRect.position = GetPointerPosition() + new Vector2(28f, -24f);
+    }
+
+    public void ApplyLanguage(HeavenOfficeLanguage language)
+    {
+        currentLanguage = language;
+        if (startSubtitleText != null)
+        {
+            startSubtitleText.text = language == HeavenOfficeLanguage.English ? "Heavenly Office" : "Божественная канцелярия";
+        }
+
+        if (startButtonText != null)
+        {
+            startButtonText.text = language == HeavenOfficeLanguage.English ? "START" : "СТАРТ";
+        }
+
+        if (restartButtonText != null)
+        {
+            restartButtonText.text = language == HeavenOfficeLanguage.English ? "Restart" : "Начать заново";
+        }
+
+        if (startButtonObject != null)
+        {
+            startButtonObject.SetActive(true);
+        }
     }
 
     private void CompactTopPanel()
@@ -1292,18 +1455,34 @@ public class HeavenOfficeView : MonoBehaviour
         startTitleText.rectTransform.sizeDelta = new Vector2(0f, 78f);
         startTitleText.rectTransform.anchoredPosition = new Vector2(0f, -70f);
 
-        Text subtitle = Label("Божественная канцелярия", card, 24, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.36f, 0.28f, 0.14f));
-        subtitle.rectTransform.anchorMin = new Vector2(0f, 0.52f);
-        subtitle.rectTransform.anchorMax = new Vector2(1f, 0.72f);
-        subtitle.rectTransform.offsetMin = new Vector2(24f, 0f);
-        subtitle.rectTransform.offsetMax = new Vector2(-24f, 0f);
+        startSubtitleText = Label("Choose language / Выберите язык", card, 24, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.36f, 0.28f, 0.14f));
+        startSubtitleText.rectTransform.anchorMin = new Vector2(0f, 0.64f);
+        startSubtitleText.rectTransform.anchorMax = new Vector2(1f, 0.78f);
+        startSubtitleText.rectTransform.offsetMin = new Vector2(24f, 0f);
+        startSubtitleText.rectTransform.offsetMax = new Vector2(-24f, 0f);
+
+        RectTransform englishButtonRect = Panel("EnglishButton", card, new Color(0.22f, 0.52f, 0.74f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(170f, 52f));
+        englishButtonRect.anchoredPosition = new Vector2(-95f, 0f);
+        Button englishButton = englishButtonRect.gameObject.AddComponent<Button>();
+        englishButton.onClick.AddListener(() => onLanguageSelected?.Invoke(HeavenOfficeLanguage.English));
+        Text englishText = Label("English", englishButtonRect, 22, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
+        Stretch(englishText.rectTransform, 6, 6, 6, 6);
+
+        RectTransform russianButtonRect = Panel("RussianButton", card, new Color(0.74f, 0.52f, 0.22f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(170f, 52f));
+        russianButtonRect.anchoredPosition = new Vector2(95f, 0f);
+        Button russianButton = russianButtonRect.gameObject.AddComponent<Button>();
+        russianButton.onClick.AddListener(() => onLanguageSelected?.Invoke(HeavenOfficeLanguage.Russian));
+        Text russianText = Label("Русский", russianButtonRect, 22, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
+        Stretch(russianText.rectTransform, 6, 6, 6, 6);
 
         RectTransform startButtonRect = Panel("StartButton", card, new Color(0.22f, 0.52f, 0.74f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(220f, 64f));
         startButtonRect.anchoredPosition = new Vector2(0f, 72f);
+        startButtonObject = startButtonRect.gameObject;
         Button startButton = startButtonRect.gameObject.AddComponent<Button>();
         startButton.onClick.AddListener(() => onStart?.Invoke());
-        Text startText = Label("START", startButtonRect, 26, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
-        Stretch(startText.rectTransform, 6, 6, 6, 6);
+        startButtonText = Label("START", startButtonRect, 26, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
+        Stretch(startButtonText.rectTransform, 6, 6, 6, 6);
+        startButtonObject.SetActive(false);
     }
 
     private void AddStampButton(RectTransform parent, StampType stamp, string label, string mark, Color color, float y, float x)
@@ -1354,8 +1533,8 @@ public class HeavenOfficeView : MonoBehaviour
         restartRect.anchoredPosition = new Vector2(0f, 50f);
         Button restartButton = restartRect.gameObject.AddComponent<Button>();
         restartButton.onClick.AddListener(() => onRestart?.Invoke());
-        Text restartText = Label("Начать заново", restartRect, 22, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
-        Stretch(restartText.rectTransform, 4, 4, 4, 4);
+        restartButtonText = Label("Начать заново", restartRect, 22, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
+        Stretch(restartButtonText.rectTransform, 4, 4, 4, 4);
         finalPanel.SetActive(false);
     }
 
@@ -1447,6 +1626,18 @@ public class HeavenOfficeView : MonoBehaviour
 
     private string ReactionFor(StampType stamp)
     {
+        if (currentLanguage == HeavenOfficeLanguage.English)
+        {
+            switch (stamp)
+            {
+                case StampType.Heaven: return "The soul smiles with relief.";
+                case StampType.Hell: return "The soul nervously vanishes into a red portal.";
+                case StampType.Appeal: return "The soul takes a ticket and waits.";
+                case StampType.Audit: return "The case is sent to the blue audit archive.";
+                default: return "The office marks the case.";
+            }
+        }
+
         switch (stamp)
         {
             case StampType.Heaven: return "Душа облегчённо улыбается.";
@@ -1457,8 +1648,20 @@ public class HeavenOfficeView : MonoBehaviour
         }
     }
 
-    private string SessionReasonLabel(SessionEndReason reason)
+    private string SessionReasonLabel(SessionEndReason reason, HeavenOfficeLanguage language)
     {
+        if (language == HeavenOfficeLanguage.English)
+        {
+            switch (reason)
+            {
+                case SessionEndReason.QueueCompleted: return "queue completed";
+                case SessionEndReason.TooManyMistakes: return "too many errors";
+                case SessionEndReason.SessionTimerExpired: return "shift timer expired";
+                case SessionEndReason.ManualRestart: return "manual restart";
+                default: return reason.ToString();
+            }
+        }
+
         switch (reason)
         {
             case SessionEndReason.QueueCompleted: return "очередь обработана";
