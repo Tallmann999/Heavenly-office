@@ -1,0 +1,7 @@
+interface:
+  display_name: "Unity UI Toolkit Builder"
+  short_description: "Plans UI Toolkit screens, UXML/USS structure, bindings, and controller boundaries."
+  default_prompt: "Use $unity-ui-toolkit-builder to plan UI Toolkit screens, UXML, USS, bindings and screen composition."
+
+policy:
+  allow_implicit_invocation: true

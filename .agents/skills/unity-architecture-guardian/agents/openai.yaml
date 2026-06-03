@@ -1,0 +1,7 @@
+interface:
+  display_name: "Unity Architecture Guardian"
+  short_description: "Reviews Unity architecture, asmdef boundaries, OOP/SOLID, and naming."
+  default_prompt: "Use $unity-architecture-guardian to review Unity architecture, asmdefs, naming and component responsibilities."
+
+policy:
+  allow_implicit_invocation: true

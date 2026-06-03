@@ -25,7 +25,7 @@ public class HeavenOfficeView : MonoBehaviour
     private Sprite hellDestinationSprite;
 
     [SerializeField] private Font font;
-    [SerializeField] private Text titleText;
+    [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private Text scoreText;
     [SerializeField] private Text queueText;
     [SerializeField] private Text timerText;

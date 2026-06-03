@@ -1,0 +1,7 @@
+interface:
+  display_name: "Unity Prefab Assembler"
+  short_description: "Plans Unity prefab hierarchy, components, ScriptableObject config, and inspector wiring."
+  default_prompt: "Use $unity-prefab-assembler to plan prefab composition, serialized references, config boundaries and runtime ownership."
+
+policy:
+  allow_implicit_invocation: true
