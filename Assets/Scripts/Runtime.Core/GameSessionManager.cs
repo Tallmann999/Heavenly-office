@@ -6,7 +6,7 @@ using UnityEngine;
 public class GameSessionManager
 {
     public event Action<SoulDocumentData,int,int,HeavenOfficeLanguage> ShowDocumentRequested;
-    public event Action<int,int,int,int,int,int,HeavenOfficeLanguage> UpdateHudRequested;
+    public event Action<int,int,int,int,int,int,int,HeavenOfficeLanguage> UpdateHudRequested;
     public event Action<string,Color,HeavenOfficeLanguage> SetFeedbackRequested;
     public event Action<string,int,int,int,int,SessionEndReason,HeavenOfficeLanguage> ShowFinalPanelRequested;
 
