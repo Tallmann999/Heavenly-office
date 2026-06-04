@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c684aa28ce94114093ef9ea0376b10f, type: 3}
+  m_Name: loc_en
+  m_EditorClassIdentifier: Assembly-CSharp::DivineOfficeLocalizationTable
+  LanguageCode: en
+  Entries:
+  - Key: ui.title
+    Value: Divine Office
+  - Key: ui.start
+    Value: Start
+  - Key: ui.next_soul
+    Value: Next Soul
+  - Key: ui.collection_title
+    Value: Card Archive
+  - Key: ui.world_state_title
+    Value: World State
+  - Key: soul.dobry_starik.name
+    Value: Kind Old Man
+  - Key: soul.dobry_starik.summary
+    Value: Lived honestly, helped neighbors.
+  - Key: soul.dobry_starik.good_1
+    Value: Fed the homeless
+  - Key: soul.dobry_starik.bad_1
+    Value: Occasionally stole apples
+  - Key: soul.greedy_merchant.name
+    Value: Greedy Merchant
+  - Key: soul.greedy_merchant.summary
+    Value: Made a fortune by cheating customers.
+  - Key: soul.greedy_merchant.good_1
+    Value: Supported the city market
+  - Key: soul.greedy_merchant.bad_1
+    Value: Cheated on scales
+  - Key: soul.soldier_repented.name
+    Value: Soldier Repented
+  - Key: soul.soldier_repented.summary
+    Value: Fought in battles, later sought redemption.
+  - Key: soul.archive_error.name
+    Value: Archive Error
+  - Key: soul.archive_error.summary
+    Value: Documents contain inconsistencies and errors.
+  - Key: soul.reptiloid_taxman.name
+    Value: Reptiloid Taxman
+  - Key: soul.reptiloid_taxman.summary
+    Value: A stern taxman of an interplanetary empire.
+  - Key: reincarnation.angel_gardener.name
+    Value: Angel Gardener
+  - Key: reincarnation.ordinary_human.name
+    Value: Ordinary Human
+  - Key: reincarnation.monk_student.name
+    Value: Monk Student
+  - Key: reincarnation.dung_beetle.name
+    Value: Dung Beetle
+  - Key: reincarnation.swamp_toad.name
+    Value: Swamp Toad
+  - Key: reincarnation.demon_intern.name
+    Value: Demon Intern
+  - Key: reincarnation.cosmic_slug.name
+    Value: Cosmic Slug
+  - Key: reincarnation.guardian_firefly.name
+    Value: Guardian Firefly

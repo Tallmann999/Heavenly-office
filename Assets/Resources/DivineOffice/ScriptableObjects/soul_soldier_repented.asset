@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7be8aa7b67f7ac4db418e5e96452599, type: 3}
+  m_Name: soul_soldier_repented
+  m_EditorClassIdentifier: Assembly-CSharp::SoulCaseData
+  Id: soldier_repented
+  NameKey: soul.soldier_repented.name
+  Portrait: {fileID: 0}
+  LifeSummaryKey: soul.soldier_repented.summary
+  GoodActKeys:
+  - soul.soldier_repented.good_1
+  BadActKeys:
+  - soul.soldier_repented.bad_1
+  IntentionKeys: []
+  HiddenTagKeys: []
+  CorrectStamp: 2
+  CorrectReincarnationId: monk_student
+  CardRewardId: card_soldier_repented
