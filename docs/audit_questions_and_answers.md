@@ -45,14 +45,14 @@
 
 **Технические факты / подтверждения**
 - Unity Editor (проект): [ProjectSettings/ProjectVersion.txt](ProjectSettings/ProjectVersion.txt#L1-L2) — `m_EditorVersion: 6000.2.14f1`.
-- Пакеты: `com.unity.inputsystem`, URP; Unity Localization пакета нет — [Packages/manifest.json](Packages/manifest.json#L1-L40).
+- Пакеты: `com.unity.inputsystem`, URP и `com.unity.localization` установлены — [Packages/manifest.json](Packages/manifest.json#L1-L40). При этом модуль DivineOffice сейчас использует собственные SO-таблицы, поэтому целевую стратегию локализации ещё нужно выбрать.
 - Save: модульный `DivineOfficeSaveService` — JSON в `Application.persistentDataPath`, API `Load/Save/ResetSave`. См. [Assets/Scripts/Modules/DivineOffice/Runtime/Persistence/DivineOfficeSaveService.cs](Assets/Scripts/Modules/DivineOffice/Runtime/Persistence/DivineOfficeSaveService.cs#L1-L40).
 - UI префабы: сборщик префабов `Tools/DivineOffice/Assemble UI Prefabs` создаёт `PF_DivineOfficeMainScreen` и `PF_ReincarnationResultScreen`, использует `LocalizedTextBinder`. См. [Assets/Editor/DivineOfficePrefabAssembler.cs](Assets/Editor/DivineOfficePrefabAssembler.cs#L1-L40).
 - Правила/оценка решений: [Assets/Scripts/HeavenOfficeRulesEvaluator.cs](Assets/Scripts/HeavenOfficeRulesEvaluator.cs#L1-L40).
 
 **Риски и рекомендации**
 - Риск: Несоответствие Unity Editor ожиданиям (раньше обсуждалась 2022.3) — подтвердить локально, версия в проекте указана в [ProjectSettings/ProjectVersion.txt](ProjectSettings/ProjectVersion.txt#L1-L2).
-- Риск: Отсутствие Unity Localization package — текущая SO‑реализация ок для прототипа; при желании миграции подготовить экспорт таблиц.
+- Риск: В проекте одновременно доступны Unity Localization package и собственная SO‑реализация; до расширения контента нужно выбрать одну целевую стратегию.
 - Риск: TMP font assets для кириллицы — проверить наличие TMP font assets с поддержкой кириллицы (могу выполнить поиск по проекту).
 
 Если хочешь, выполню один из следующих шагов:

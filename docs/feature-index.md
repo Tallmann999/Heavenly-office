@@ -1,47 +1,76 @@
-| feature_id | feature_name | brief | player_value | priority | depends_on | distribution | status | spec_doc |
-|---|---|---|---|---|---|---|---|---|
-| core_divine_office | Core Divine Office Flow | Основной цикл: очередь душ → досье → печать → реинкарнация → результат | Основной игровой опыт | MVP | ui_main_screen, karma_evaluator, persistence | all | planned | docs/TBD_core_divine_office_gd-spec.md |
-| ui_main_screen | Main Office UI | PF_DivineOfficeMainScreen: HUD, очередь, печати, рычаг | Доступ к основным действиям | MVP | localization_service, ui_prefabs_lib | all | planned | docs/TBD_ui_main_screen_gd-spec.md |
-| ui_reincarnation_result | Reincarnation Result UI | PF_ReincarnationResultScreen: результат и награды | Ясность результата; награды | MVP | ui_prefabs_lib, localization_service | all | planned | docs/TBD_ui_reincarnation_result_gd-spec.md |
-| content_souls | Soul Case Content | ScriptableObjects `SoulCaseData` (5 тестовых) | Контент для дел | MVP | content_reincarnations | all | planned | docs/TBD_content_souls_gd-spec.md |
-| content_reincarnations | Reincarnation Catalog | ScriptableObjects `ReincarnationData` (8 тестовых) | Возможные результаты реинкарнации | MVP | - | all | planned | docs/TBD_content_reincarnations_gd-spec.md |
-| karma_evaluator | Karma Evaluator | Доменная логика оценки решения (adapter to existing rules) | Корректность результатов | MVP | core_divine_office | all | planned | docs/TBD_karma_evaluator_gd-spec.md |
-| reincarnation_resolver | Reincarnation Resolver | Логика выбора и визуал результата | Управление результатом / доступность карт | MVP | karma_evaluator, content_reincarnations | all | planned | docs/TBD_reincarnation_resolver_gd-spec.md |
-| reward_and_cards | Rewards & Cards | Логика начисления наград и открытия карт | Долгосрочная мотивация (коллекция) | MVP | persistence, content_souls | all | planned | docs/TBD_reward_and_cards_gd-spec.md |
-| persistence | Save System | `DivineOfficeSaveService` JSON + PlayerPrefs fallback | Сохранение прогресса | MVP | - | all | planned | docs/TBD_persistence_gd-spec.md |
-| localization_service | Localization Service | SO‑based RU/EN tables + binder | Локализация UI | MVP | - | all | planned | docs/TBD_localization_service_gd-spec.md |
-| ui_prefabs_lib | UI Prefabs Library | Набор префабов (HUD, SoulView, StampButton, ResultScreen) | Быстрое прототипирование UI | MVP | - | all | planned | docs/TBD_ui_prefabs_lib_gd-spec.md |
-| integration_adapter | Integration Adapter | Адаптеры для работы с `HeavenOfficeView`/manager | Безопасная интеграция в проект | MVP | HeavenOffice existing | all | planned | docs/TBD_integration_adapter_gd-spec.md |
-| ui_card_collection | Card Collection UI | PF_CardCollectionScreen (фильтры, сетка, детали) | Просмотр и прогресс коллекции | P1 | ui_prefabs_lib, persistence | all | planned | docs/TBD_ui_card_collection_gd-spec.md |
-| ui_world_state | World State Screen | PF_WorldStateScreen (4 мира, состояние) | Отчёт по итогу дня | P1 | persistence | all | planned | docs/TBD_ui_world_state_gd-spec.md |
-| visual_placeholders | Visual Placeholders | Placeholder sprites/animators для прототипа | Поддержка UI композиции | P1 | ui_prefabs_lib | all | planned | docs/TBD_visual_placeholders_gd-spec.md |
-| analytics_hooks | Analytics Hooks | Лёгкая запись событий (опционально) | Аналитика базовых KPI | P2 | - | all | planned | TBD |
-
-
-## Dependency map
-- `core_divine_office` → `ui_main_screen`, `karma_evaluator`, `persistence`
-- `ui_reincarnation_result` → `ui_prefabs_lib`, `localization_service`
-- `reward_and_cards` → `persistence`, `content_reincarnations`, `ui_card_collection`
-
-## Top‑3 рисковые фичи
-1. Интеграция с `HeavenOfficeView` — риск регрессий; стратегия: адаптер, модульность, smoke тесты.
-2. Система сохранения — возможный конфликт с проектным SaveService; стратегия: сначала аудит, затем интеграция или изоляция `DivineOfficeSaveService`.
-3. Локализация/шрифты — TMP font assets с кириллицей могут отсутствовать; стратегия: проверить и подготовить fallback.
-
-## Предложенный порядок разработки
-1. Audit + ответы на опросник
-2. Localization + persistence (фундамент)
-3. ScriptableObjects контент (5 souls, 8 reincarnations)
-4. UI prefabs (main + result) и привязка `LocalizedTextBinder`
-5. Flow controller + adapter + базовый loop (5 souls подряд)
-6. Card collection UI + reward logic
-7. Полировка, тесты и acceptance checklist
 # Feature Index
 
-- `soul_card_collection`
-  - Название: Коллекция уникальных карт душ
-  - Описание: Локальная коллекция карточек редких и уникальных душ с наградой за правильную постановку печати.
-  - Приоритет: P1
-  - Распространение: premium
-  - Зависимости: UI главного экрана, меню паузы, система документов душ, система печатей
-  - Статус: proposed
+Статусы основаны на аудите репозитория от 2026-06-04:
+
+- `done` — фича присутствует в рабочей сцене или подтверждена полноценными assets и связями.
+- `in_progress` — часть фичи существует, но сквозная работоспособность или полный scope не подтверждены.
+- `planned` — значимая реализация в проекте не найдена.
+
+| feature_id | feature_name | brief | player_value | priority | depends_on | distribution | status | spec_doc |
+|---|---|---|---|---|---|---|---|---|
+| legacy_office_loop | Первая итерация Heaven Office | Сгенерированные дела, четыре печати, таймер, счёт, ошибки, комбо, финал смены | Уже играбельная проверка базовой сортировки | MVP | legacy_main_ui, legacy_rules | premium | done | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| legacy_main_ui | Рабочий UI первой итерации | Старт, досье, печати, HUD, фидбек, финальная панель | Позволяет пройти существующую сессию | MVP | tmp_font | premium | done | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| legacy_rules | Базовые правила решений | Оценка добрых/плохих поступков и приоритет особых тегов | Даёт понятный исход решения | MVP | legacy_content_generator | premium | done | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| core_divine_office | Сквозной Divine Office Flow | 5 заданных душ: досье → печать → реинкарнация → результат → следующая душа | Проверяет главную игровую гипотезу | MVP | integration_strategy, content_souls, content_reincarnations, persistence, localization_service | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| integration_strategy | Интеграция с первой итерацией | Сохранить первую итерацию отдельным режимом и сделать ясный выбор режима | Исключает конфликт двух flow | MVP | legacy_office_loop | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| soul_investigation | Кармическое расследование | Намерения, раскаяние, скрытые сведения, архивные ошибки и инструменты раскрытия | Главное отличие игры от простой сортировки | MVP | content_souls, karma_evaluator, main_office_experience | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| stamp_decision | Выбор и применение печати | Рай, Ад, Проверка, Апелляция с выразительным фидбеком | Ключевое решение игрока | MVP | karma_evaluator, main_office_experience | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| reincarnation_choice | Свободный выбор реинкарнации | Игрок сам выбирает конкретную форму до запуска рычага | Добавляет авторство и комедийный payoff | MVP | content_reincarnations, reincarnation_resolver | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| return_case_queue | Очередь возвратных дел | Души после Проверки/Апелляции возвращаются позже с новыми сведениями | Создаёт многоэтапные истории и последствия решений | MVP | soul_investigation, content_souls | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| reincarnation_resolver | Определение результата реинкарнации | Выбрать итог по решению, правилам и доступным вариантам | Связывает решение с последствием | MVP | karma_evaluator, content_reincarnations | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| karma_evaluator | Оценка качества решения | Оценить печать, раскрытые сведения и реинкарнацию | Делает решения осмысленными | MVP | soul_investigation | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| main_office_experience | Главный экран кабинета | Очередь, душа, досье, инструменты, печати, порталы, рычаг, HUD | Формирует запоминаемый игровой стол | MVP | integration_strategy, localization_service | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| reincarnation_result_ui | Экран результата | Исходная душа, новая форма, причина, награды, CTA продолжения | Даёт понятный и смешной payoff | MVP | reincarnation_resolver, localization_service | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| content_souls | Контент дел душ | 5 тестовых assets сейчас; 40 душ для vertical slice | Обеспечивает разнообразие решений | MVP | localization_service | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| content_reincarnations | Каталог реинкарнаций | 8 тестовых вариантов с допустимыми печатями | Обеспечивает последствия и юмор | MVP | localization_service | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| reward_and_cards | Награды и открытие карт | Очки кармы, монеты и карта за правильное решение | Создаёт кратко- и среднесрочную мотивацию | MVP | persistence, karma_evaluator, soul_card_collection | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| persistence | Сохранение прогресса | Язык, день, обработанные души, карты и ресурсы | Сохраняет прогресс между запусками | MVP | integration_strategy | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| localization_service | RU/EN локализация | Текущие SO-таблицы, binder и переключение языка | Делает прототип доступным на двух языках | MVP | localization_strategy | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| localization_strategy | Целевая стратегия локализации | Выбрать Unity Localization или собственные SO-таблицы | Исключает дублирование систем | MVP | - | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| soul_card_collection | Коллекция карт душ | Сетка, фильтры, детали, прогресс и состояние новых карт | Даёт долгосрочную цель и ценность редких душ | P1 | reward_and_cards, persistence | premium | planned | `docs/features/soul-card-collection.md` |
+| world_state_day_summary | Итоги дня и состояние миров | Последствия решений, четыре мира и переход к следующему дню | Показывает влияние игрока | P1 | world_impact, persistence | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| world_impact | Влияние решений на миры | Правила изменения миров после каждого решения | Делает последствия накопительными | P1 | karma_evaluator | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| office_upgrades | Улучшения канцелярии | Покупка инструментов, бонусов и новых возможностей | Формирует мета-прогрессию | P1 | reward_and_cards, world_state_day_summary | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| day_events | События и новые правила дня | Модификаторы смены и новые ситуации | Поддерживает разнообразие | P1 | world_state_day_summary, content_souls | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| ftue_tutorial | Обучение первой смены | Объяснить расследование, печати и реинкарнацию через реальный flow | Снижает риск непонимания правил | P1 | core_divine_office | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| presentation_feedback | Визуальный и звуковой feedback | Реакции души, удар печати, рычаг, портал, reveal карты | Делает действия приятными и продаваемыми | P1 | main_office_experience, reincarnation_result_ui | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| analytics_and_playtest | Аналитика прототипа и плейтест | События core loop и критерии проверки гипотезы | Позволяет решить, работает ли концепт | P1 | core_divine_office | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| automated_tests | Автоматизированные проверки | Тесты правил, сохранения, локализации и core flow | Снижает риск регрессий | P1 | core_divine_office, persistence, localization_service | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+
+## Dependency Map
+
+- `core_divine_office` → `integration_strategy`, `main_office_experience`, `soul_investigation`, `stamp_decision`, `reincarnation_choice`, `reincarnation_result_ui`, `persistence`, `localization_service`
+- `karma_evaluator` → `soul_investigation`, правила печатей и правила качества реинкарнации
+- `reward_and_cards` → `karma_evaluator`, `persistence`, затем `soul_card_collection`
+- `world_state_day_summary` → `world_impact`, `persistence`, затем `office_upgrades` и `day_events`
+
+## Что Уже Есть
+
+- Полностью играбельная первая итерация базовой сессии в `SampleScene`.
+- Четыре печати, базовые правила, процедурные дела, таймер, счёт, ошибки, комбо и лог аналитики.
+- Частичный модуль DivineOffice: контентные assets, сохранение, локализация, flow controller и два UI-префаба.
+- 5 тестовых душ, 8 реинкарнаций, RU/EN таблицы, TMP-шрифт с кириллицей.
+
+## Что Нужно Реализовать В Первую Очередь
+
+1. Сделать отдельный запуск Steam-демо, сохранив первую итерацию отдельным режимом.
+2. Подключить DivineOffice к рабочей сцене и подтвердить сквозной проход демо.
+3. Реализовать свободный выбор реинкарнации и определить правила качества решения.
+4. Довести расследование души до состояния, где намерения и скрытая информация влияют на выбор.
+5. Завершить результат, награды, сохранение и смену языка без потери состояния.
+6. После стабильного цикла добавить коллекцию карт и итоги дня.
+
+## Top-3 Рисковые Фичи
+
+1. `integration_strategy`: первая итерация должна остаться отдельным режимом, но два flow не должны конфликтовать.
+2. `soul_investigation`: это главное отличие продукта, но его точные правила не определены.
+3. `return_case_queue`: возврат дел после Проверки/Апелляции требует ясных правил времени, новых сведений и завершения.
+
+## Предложенный Порядок Разработки
+
+1. Принять решения по вопросам P0 из сводного GD-дока.
+2. Сделать один сквозной flow на одной рабочей сцене.
+3. Зафиксировать правила расследования, оценки и реинкарнации.
+4. Довести 5 тестовых душ до полноценного контента и закрыть сохранение/локализацию.
+5. Проверить гипотезу плейтестом: интересно ли изучать дело, ставить печать и видеть результат.
+6. Только после этого расширять вертикальный срез коллекцией, мирами, улучшениями и событиями.
