@@ -28,9 +28,11 @@
 | localization_service | RU/EN локализация | Текущие SO-таблицы, binder и переключение языка | Делает прототип доступным на двух языках | MVP | localization_strategy | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
 | localization_strategy | Целевая стратегия локализации | Выбрать Unity Localization или собственные SO-таблицы | Исключает дублирование систем | MVP | - | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
 | soul_card_collection | Коллекция карт душ | Доступна сразу; фильтры, сетка, детали, прогресс, редкость, бонусы и новые уникальные карточки | Даёт долгосрочную цель и ценность редких душ | MVP | reward_and_cards, persistence | premium | planned | `docs/features/soul-card-collection.md` |
-| world_state_day_summary | Итоги дня и состояние миров | Карта миров, баланс, новые карточки, очки судейства, ресурсы и новые ветки галактик/миров | Показывает влияние игрока | MVP | world_impact, persistence | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
-| world_impact | Влияние решений на миры | Правила изменения миров после каждого решения | Делает последствия накопительными | P1 | karma_evaluator | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
-| office_upgrades | Улучшения канцелярии | Покупка инструментов, бонусов и новых возможностей | Формирует мета-прогрессию | P1 | reward_and_cards, world_state_day_summary | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| world_state_day_summary | Итоги дня и состояние миров | Карта миров, баланс, рейтинг судьи, новые карточки, ресурсы и новые ветки галактик/миров | Показывает влияние игрока | MVP | world_impact, persistence | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| world_impact | Ветвящаяся карта миров | Решения открывают стабильные/тревожные/кризисные/проклятые ветки и влияют на очередь душ | Делает последствия накопительными и создаёт будущие кейсы | MVP | karma_evaluator | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| judge_rating | Рейтинг судьи | Показатель качества судейства, влияющий на доступ к веткам душ | Даёт понятную долгосрочную оценку игрока | MVP | world_impact, reward_and_cards | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| bureaucracy_risk | Бюрократический риск | Побочный рейтинг частых Проверок/Апелляций | Ограничивает абуз осторожной стратегии | P1 | return_case_queue, judge_rating | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
+| office_upgrades | Улучшения канцелярии | Зеркало/пронзительный взгляд, весы и другие инструменты стола | Формирует мета-прогрессию и помогает решать сложные души | P1 | reward_and_cards, world_state_day_summary | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
 | day_events | События и новые правила дня | Модификаторы смены и новые ситуации | Поддерживает разнообразие | P1 | world_state_day_summary, content_souls | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
 | ftue_tutorial | Обучение первой смены | Объяснить расследование, печати и реинкарнацию через реальный flow | Снижает риск непонимания правил | P1 | core_divine_office | premium | planned | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
 | presentation_feedback | Визуальный и звуковой feedback | Реакции души, удар печати, рычаг, портал, reveal карты | Делает действия приятными и продаваемыми | P1 | main_office_experience, reincarnation_result_ui | premium | in_progress | `docs/2026-06-04_divine-office-feature-roadmap_gd-spec.md` |
@@ -42,7 +44,7 @@
 - `core_divine_office` → `integration_strategy`, `main_office_experience`, `soul_investigation`, `stamp_decision`, `reincarnation_wheel`, `reincarnation_result_ui`, `persistence`, `localization_service`
 - `karma_evaluator` → `soul_investigation`, правила печатей и правила качества реинкарнации
 - `reward_and_cards` → `karma_evaluator`, `persistence`, затем `soul_card_collection`
-- `world_state_day_summary` → `world_impact`, `persistence`, затем `office_upgrades` и `day_events`
+- `world_state_day_summary` → `world_impact`, `judge_rating`, `persistence`, затем `office_upgrades` и `day_events`
 
 ## Что Уже Есть
 
