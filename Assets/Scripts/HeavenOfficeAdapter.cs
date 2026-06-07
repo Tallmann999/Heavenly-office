@@ -4,7 +4,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class HeavenOfficeAdapter : MonoBehaviour
 {
-    [SerializeField] private HeavenOfficeConfig config;
+    [SerializeField] private HeavenOfficeConfig config = new HeavenOfficeConfig();
 
     private HeavenOfficeView view;
     private GameSessionManager manager;
@@ -13,15 +13,22 @@ public class HeavenOfficeAdapter : MonoBehaviour
 
     private void Awake()
     {
+        if (config == null)
+        {
+            config = new HeavenOfficeConfig();
+        }
+
         view = GetComponent<HeavenOfficeView>();
         if (view == null)
         {
             view = gameObject.AddComponent<HeavenOfficeView>();
         }
 
+        view.BuildIfNeeded(config.createUiAtRuntime);
+
         generator = new SoulDocumentGenerator();
-        analytics = new HeavenOfficeAnalyticsLog(config != null && config.enableAnalyticsLog);
-        manager = new GameSessionManager(config ?? new HeavenOfficeConfig(), generator, analytics);
+        analytics = new HeavenOfficeAnalyticsLog(config.enableAnalyticsLog);
+        manager = new GameSessionManager(config, generator, analytics);
 
         // Wire manager events to view
         manager.ShowDocumentRequested += (doc, current, total, language) => view.ShowDocument(doc, generator, current, total, language);
@@ -33,12 +40,17 @@ public class HeavenOfficeAdapter : MonoBehaviour
         manager.PlayAnimationProvider = (stamp, hold) => view.PlayStampAnimation(stamp, hold);
 
         // Bind view callbacks to manager
-        view.Bind(manager.OnStampSelected, () => StartCoroutine(manager.ResolveSelectedStampCoroutine()), manager.OnLanguageSelected, manager.StartSession, manager.StartSession);
+        view.Bind(manager.OnStampSelected, () => StartCoroutine(manager.ResolveSelectedStampCoroutine()), OnLanguageSelected, manager.StartSession, manager.StartSession);
     }
 
     private void Start()
     {
-        view.BuildIfNeeded(config != null && config.createUiAtRuntime);
         view.ShowStartMenu();
+    }
+
+    private void OnLanguageSelected(HeavenOfficeLanguage language)
+    {
+        manager.OnLanguageSelected(language);
+        view.ApplyLanguage(language);
     }
 }
