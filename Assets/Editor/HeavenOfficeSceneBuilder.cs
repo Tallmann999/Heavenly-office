@@ -8,6 +8,12 @@ public static class HeavenOfficeSceneBuilder
     [MenuItem("Heaven Office/Rebuild Editable Scene")]
     public static void RebuildEditableScene()
     {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            Debug.Log("HeavenOfficeSceneBuilder: skipped editable scene rebuild during Play Mode.");
+            return;
+        }
+
         HeavenOfficeGameController controller = Object.FindObjectOfType<HeavenOfficeGameController>();
         if (controller == null)
         {
@@ -32,6 +38,11 @@ public static class HeavenOfficeSceneBuilder
     {
         EditorApplication.delayCall += () =>
         {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                return;
+            }
+
             Scene scene = SceneManager.GetActiveScene();
             if (!scene.IsValid() || scene.name != "SampleScene")
             {
