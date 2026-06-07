@@ -12,6 +12,7 @@ public class DivineOfficeFlowController : MonoBehaviour
     private StampType? selectedStamp;
     private HeavenOfficeView view;
     private ReincarnationData[] reincarnationSOs;
+    private bool sessionStarted;
 
 
     private void Awake()
@@ -54,13 +55,13 @@ public class DivineOfficeFlowController : MonoBehaviour
         {
             view.BuildIfNeeded(true);
             view.Bind(OnStampSelected, OnStampTargetPressed, OnLanguageSelected, OnStartRequested, OnRestartRequested);
+            view.ApplyLanguage(LocalizationService.CurrentLanguage == "en" ? HeavenOfficeLanguage.English : HeavenOfficeLanguage.Russian);
+            view.ShowStartMenu();
         }
 
         // Find first unprocessed soul
         currentIndex = 0;
         while (currentIndex < soulSOs.Length && saveData.ProcessedSoulIds.Contains(soulSOs[currentIndex].Id)) currentIndex++;
-
-        ShowCurrentSoul();
     }
 
     private void ShowCurrentSoul()
@@ -81,7 +82,7 @@ public class DivineOfficeFlowController : MonoBehaviour
         foreach (var g in so.GoodActKeys) doc.goodActs.Add(LocalizationService.Get(g));
         foreach (var b in so.BadActKeys) doc.badActs.Add(LocalizationService.Get(b));
         doc.expectedStamp = so.CorrectStamp;
-        doc.ruleExplanation = "";
+        doc.ruleExplanation = LocalizationService.Get("ui.rule_hint");
         doc.difficultyTier = 0;
         doc.timeLimit = 15f;
 
@@ -97,6 +98,8 @@ public class DivineOfficeFlowController : MonoBehaviour
 
     private void OnStampSelected(StampType stamp)
     {
+        if (!sessionStarted) return;
+
         selectedStamp = stamp;
         if (view != null)
         {
@@ -106,6 +109,7 @@ public class DivineOfficeFlowController : MonoBehaviour
 
     private void OnStampTargetPressed()
     {
+        if (!sessionStarted) return;
         if (!selectedStamp.HasValue) return;
 
         var so = soulSOs[currentIndex];
@@ -162,13 +166,17 @@ public class DivineOfficeFlowController : MonoBehaviour
     {
         string code = lang == HeavenOfficeLanguage.English ? "en" : "ru";
         LocalizationService.SetLanguage(code);
+        LoadLocalizationTable();
         saveData.SelectedLanguage = code;
         SaveService.Save(saveData);
+        view?.ApplyLanguage(lang);
     }
 
     private void OnStartRequested()
     {
-        // start/resume flow
+        sessionStarted = true;
+        view?.HideStartMenu();
+        view?.HideFinalPanel();
         ShowCurrentSoul();
     }
 
@@ -179,6 +187,22 @@ public class DivineOfficeFlowController : MonoBehaviour
         SaveService.ResetSave();
         SaveService.Save(saveData);
         currentIndex = 0;
+        sessionStarted = true;
+        view?.HideStartMenu();
+        view?.HideFinalPanel();
         ShowCurrentSoul();
+    }
+
+    private void LoadLocalizationTable()
+    {
+        var locTables = Resources.LoadAll<DivineOfficeLocalizationTable>("DivineOffice/ScriptableObjects");
+        foreach (var t in locTables)
+        {
+            if (t.LanguageCode == LocalizationService.CurrentLanguage)
+            {
+                LocalizationService.LoadTable(t);
+                return;
+            }
+        }
     }
 }

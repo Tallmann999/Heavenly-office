@@ -28,7 +28,7 @@ public class DivineOfficeLocalizationService : IDivineOfficeLocalizationService
 
     public string Get(string key)
     {
-        return table.ContainsKey(key) ? table[key] : key;
+        return table.ContainsKey(key) ? table[key] : HumanizeMissingKey(key);
     }
 
     public void SetLanguage(string languageCode)
@@ -36,5 +36,23 @@ public class DivineOfficeLocalizationService : IDivineOfficeLocalizationService
         if (languageCode == CurrentLanguage) return;
         CurrentLanguage = languageCode;
         OnLanguageChanged?.Invoke(CurrentLanguage);
+    }
+
+    private string HumanizeMissingKey(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return string.Empty;
+        }
+
+        string lastSegment = key;
+        int dotIndex = key.LastIndexOf('.');
+        if (dotIndex >= 0 && dotIndex < key.Length - 1)
+        {
+            lastSegment = key.Substring(dotIndex + 1);
+        }
+
+        lastSegment = lastSegment.Replace('_', ' ');
+        return char.ToUpperInvariant(lastSegment[0]) + lastSegment.Substring(1);
     }
 }

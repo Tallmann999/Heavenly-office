@@ -21,6 +21,16 @@ MonoBehaviour:
     Value: "\u0421\u0442\u0430\u0440\u0442"
   - Key: ui.next_soul
     Value: "\u0421\u043B\u0435\u0434\u0443\u044E\u0449\u0430\u044F \u0434\u0443\u0448\u0430"
+  - Key: ui.waiting_for_stamp
+    Value: Выберите печать, затем потяните рычаг реинкарнации.
+  - Key: ui.rule_hint
+    Value: Изучите досье, выберите одну печать и подтвердите решение рычагом.
+  - Key: ui.stamp_selected
+    Value: Печать выбрана. Потяните рычаг, чтобы подтвердить решение.
+  - Key: ui.decision_correct
+    Value: Верное решение. Душа может перейти к реинкарнации.
+  - Key: ui.decision_wrong
+    Value: Неверная печать. Дело уходит не по назначению.
   - Key: ui.collection_title
     Value: "\u0410\u0440\u0445\u0438\u0432 \u043A\u0430\u0440\u0442"
   - Key: ui.world_state_title
@@ -51,18 +61,30 @@ MonoBehaviour:
   - Key: soul.soldier_repented.summary
     Value: "\u0423\u0447\u0430\u0441\u0442\u0432\u043E\u0432\u0430\u043B \u0432 \u0431\u043E\u044F\u0445,
       \u043F\u043E\u0437\u0436\u0435 \u0438\u0441\u043A\u0430\u043B \u0438\u0441\u043A\u0443\u043F\u043B\u0435\u043D\u0438\u044F."
+  - Key: soul.soldier_repented.good_1
+    Value: Защищал мирных жителей после отказа от оружия
+  - Key: soul.soldier_repented.bad_1
+    Value: Слишком долго исполнял жестокие приказы
   - Key: soul.archive_error.name
     Value: "\u0410\u0440\u0445\u0438\u0432\u043D\u0430\u044F \u043E\u0448\u0438\u0431\u043A\u0430"
   - Key: soul.archive_error.summary
     Value: "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B \u0441\u043E\u0434\u0435\u0440\u0436\u0430\u0442
       \u043D\u0435\u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u044F
       \u0438 \u043E\u0448\u0438\u0431\u043A\u0438."
+  - Key: soul.archive_error.good_1
+    Value: Часть записей говорит о честных попытках помогать другим
+  - Key: soul.archive_error.bad_1
+    Value: Часть записей обвиняет душу в повторном мошенничестве
   - Key: soul.reptiloid_taxman.name
     Value: "\u0420\u0435\u043F\u0442\u0438\u043B\u043E\u0438\u0434-\u043D\u0430\u043B\u043E\u0433\u043E\u0432\u0438\u043A"
   - Key: soul.reptiloid_taxman.summary
     Value: "\u0421\u0443\u0440\u043E\u0432\u044B\u0439 \u0441\u0431\u043E\u0440\u0449\u0438\u043A
       \u043D\u0430\u043B\u043E\u0433\u043E\u0432 \u043C\u0435\u0436\u043F\u043B\u0430\u043D\u0435\u0442\u043D\u043E\u0439
       \u0438\u043C\u043F\u0435\u0440\u0438\u0438."
+  - Key: soul.reptiloid_taxman.good_1
+    Value: Финансировал больницы на трёх лунах
+  - Key: soul.reptiloid_taxman.bad_1
+    Value: Собирал налоги с колоний, которым нечем было выживать
   - Key: reincarnation.angel_gardener.name
     Value: "\u0410\u043D\u0433\u0435\u043B-\u0441\u0430\u0434\u043E\u0432\u043D\u0438\u043A"
   - Key: reincarnation.ordinary_human.name

@@ -20,6 +20,16 @@ MonoBehaviour:
     Value: Start
   - Key: ui.next_soul
     Value: Next Soul
+  - Key: ui.waiting_for_stamp
+    Value: Choose a seal, then pull the reincarnation lever.
+  - Key: ui.rule_hint
+    Value: Read the dossier, choose one seal, then confirm with the lever.
+  - Key: ui.stamp_selected
+    Value: Seal selected. Pull the lever to confirm the decision.
+  - Key: ui.decision_correct
+    Value: Correct decision. The soul may proceed to reincarnation.
+  - Key: ui.decision_wrong
+    Value: Wrong seal. The case is sent to the wrong destination.
   - Key: ui.collection_title
     Value: Card Archive
   - Key: ui.world_state_title
@@ -44,14 +54,26 @@ MonoBehaviour:
     Value: Soldier Repented
   - Key: soul.soldier_repented.summary
     Value: Fought in battles, later sought redemption.
+  - Key: soul.soldier_repented.good_1
+    Value: Protected civilians after laying down arms
+  - Key: soul.soldier_repented.bad_1
+    Value: Obeyed cruel orders for too long
   - Key: soul.archive_error.name
     Value: Archive Error
   - Key: soul.archive_error.summary
     Value: Documents contain inconsistencies and errors.
+  - Key: soul.archive_error.good_1
+    Value: Several records show sincere attempts to help others
+  - Key: soul.archive_error.bad_1
+    Value: Several records accuse the soul of repeated fraud
   - Key: soul.reptiloid_taxman.name
     Value: Reptiloid Taxman
   - Key: soul.reptiloid_taxman.summary
     Value: A stern taxman of an interplanetary empire.
+  - Key: soul.reptiloid_taxman.good_1
+    Value: Funded hospitals across three moons
+  - Key: soul.reptiloid_taxman.bad_1
+    Value: Collected taxes from colonies that could not survive them
   - Key: reincarnation.angel_gardener.name
     Value: Angel Gardener
   - Key: reincarnation.ordinary_human.name

@@ -33,10 +33,14 @@ public class HeavenOfficeView : MonoBehaviour
     [SerializeField] private Text comboText;
     [SerializeField] private Text tierText;
     [SerializeField] private Text soulText;
+    [SerializeField] private Text soulQueueStripText;
     [SerializeField] private Text reactionText;
     [SerializeField] private Text documentText;
     [SerializeField] private Text stampMarkText;
     [SerializeField] private Text targetZoneText;
+    [SerializeField] private Text reincarnationLeverText;
+    [SerializeField] private Text mirrorTeaserText;
+    [SerializeField] private Text scalesTeaserText;
     [SerializeField] private Text ruleHintText;
     [SerializeField] private Text feedbackText;
     [SerializeField] private Text finalTitleText;
@@ -48,6 +52,7 @@ public class HeavenOfficeView : MonoBehaviour
     [SerializeField] private GameObject startButtonObject;
     [SerializeField] private Image timerFill;
     [SerializeField] private Image soulCard;
+    [SerializeField] private Image soulQueueStrip;
     [SerializeField] private Image documentCard;
     [SerializeField] private Image photoFrame;
     [SerializeField] private Image stampMarkPanel;
@@ -58,6 +63,8 @@ public class HeavenOfficeView : MonoBehaviour
     [SerializeField] private Image rightTrayImage;
     [SerializeField] private RectTransform documentRect;
     [SerializeField] private RectTransform soulRect;
+    [SerializeField] private RectTransform soulQueueStripRect;
+    [SerializeField] private RectTransform reincarnationLeverRect;
     [SerializeField] private RectTransform stampMarkRect;
     [SerializeField] private RectTransform heldStampRect;
     [SerializeField] private RectTransform leftTrayRect;
@@ -168,31 +175,43 @@ public class HeavenOfficeView : MonoBehaviour
         center.offsetMin = new Vector2(230f, 92f);
         center.offsetMax = new Vector2(-230f, -84f);
 
+        BuildOfficeDesk(center);
+
         AddStampButton(left, StampType.Heaven, "Рай", "HEAVEN", new Color(0.22f, 0.68f, 0.35f), -92, 0f);
         AddStampButton(left, StampType.Appeal, "Апелляция", "APPEAL", new Color(0.94f, 0.68f, 0.16f), -248, 0f);
         AddStampButton(right, StampType.Hell, "Ад", "HELL", new Color(0.78f, 0.18f, 0.14f), -92, 0f);
         AddStampButton(right, StampType.Audit, "Проверка", "AUDIT", new Color(0.28f, 0.48f, 0.68f), -248, 0f);
 
-        soulCard = Panel("SoulCard", center, new Color(0.72f, 0.84f, 0.98f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(250f, 86f)).GetComponent<Image>();
+        soulQueueStrip = Panel("SoulQueueStrip", center, new Color(0.16f, 0.22f, 0.29f, 0.88f), new Vector2(0.12f, 1f), new Vector2(0.88f, 1f), new Vector2(0f, 46f)).GetComponent<Image>();
+        soulQueueStripRect = soulQueueStrip.rectTransform;
+        soulQueueStripRect.pivot = new Vector2(0.5f, 1f);
+        soulQueueStripRect.anchoredPosition = new Vector2(0f, -10f);
+        soulQueueStrip.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.3f);
+        soulQueueStripText = Label("SOUL QUEUE  |  waiting for first case", soulQueueStripRect, 17, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
+        Stretch(soulQueueStripText.rectTransform, 12, 12, 4, -4);
+
+        soulCard = Panel("SoulWindow", center, new Color(0.72f, 0.84f, 0.98f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(280f, 84f)).GetComponent<Image>();
         soulRect = soulCard.rectTransform;
-        soulRect.anchoredPosition = new Vector2(0f, -72f);
+        soulRect.anchoredPosition = new Vector2(0f, -92f);
+        soulCard.gameObject.AddComponent<Outline>().effectColor = new Color(0.2f, 0.38f, 0.58f, 0.55f);
         soulText = Label("Душа", soulRect, 20, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
         Stretch(soulText.rectTransform, 8, 8, 8, 8);
 
         reactionText = Label("", center, 18, FontStyle.Italic, TextAnchor.MiddleCenter, new Color(0.18f, 0.25f, 0.32f));
-        reactionText.rectTransform.anchorMin = new Vector2(0.15f, 0.72f);
-        reactionText.rectTransform.anchorMax = new Vector2(0.85f, 0.83f);
+        reactionText.rectTransform.anchorMin = new Vector2(0.18f, 0.68f);
+        reactionText.rectTransform.anchorMax = new Vector2(0.82f, 0.77f);
         reactionText.rectTransform.offsetMin = Vector2.zero;
         reactionText.rectTransform.offsetMax = Vector2.zero;
 
-        documentCard = Panel("SoulDocument", center, new Color(1f, 0.97f, 0.84f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(610f, 390f)).GetComponent<Image>();
+        documentCard = Panel("SoulDossier", center, new Color(1f, 0.97f, 0.84f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(500f, 360f)).GetComponent<Image>();
         documentRect = documentCard.rectTransform;
-        documentRect.anchoredPosition = new Vector2(0f, -40f);
+        documentRect.anchoredPosition = new Vector2(0f, -50f);
+        documentCard.gameObject.AddComponent<Outline>().effectColor = new Color(0.38f, 0.3f, 0.16f, 0.28f);
         Button documentButton = documentCard.gameObject.AddComponent<Button>();
         documentButton.transition = Selectable.Transition.ColorTint;
         documentButton.onClick.AddListener(() => onStampTargetPressed?.Invoke());
 
-        documentText = Label("", documentRect, 18, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.18f, 0.16f, 0.13f));
+        documentText = Label("", documentRect, 17, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.18f, 0.16f, 0.13f));
         Stretch(documentText.rectTransform, 26, 142, 22, -24);
 
         photoFrame = Panel("SoulPhotoSlot", documentRect, new Color(0.9f, 0.88f, 0.76f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(104f, 124f)).GetComponent<Image>();
@@ -222,6 +241,8 @@ public class HeavenOfficeView : MonoBehaviour
         Button targetButton = targetZoneText.gameObject.AddComponent<Button>();
         targetButton.onClick.AddListener(() => onStampTargetPressed?.Invoke());
 
+        BuildReincarnationLever(center);
+        BuildFullVersionTeasers(center);
         BuildDestinationTrays(center);
         BuildHeldStamp(root);
         BuildFinalPanel(root);
@@ -247,8 +268,8 @@ public class HeavenOfficeView : MonoBehaviour
     public void ShowDocument(SoulDocumentData document, SoulDocumentGenerator generator, int current, int total, HeavenOfficeLanguage language)
     {
         currentLanguage = language;
-        documentRect.anchoredPosition = new Vector2(0f, -40f);
-        soulRect.anchoredPosition = new Vector2(0f, -72f);
+        documentRect.anchoredPosition = new Vector2(0f, -50f);
+        soulRect.anchoredPosition = new Vector2(0f, -92f);
         documentCard.color = new Color(1f, 0.97f, 0.84f);
         soulCard.color = new Color(0.72f, 0.84f, 0.98f);
         if (stampMarkPanel != null)
@@ -267,6 +288,27 @@ public class HeavenOfficeView : MonoBehaviour
         HideHeldStamp();
         reactionText.text = language == HeavenOfficeLanguage.English ? "The soul awaits the office decision." : "Душа ожидает решения канцелярии.";
         targetZoneText.text = language == HeavenOfficeLanguage.English ? "STAMP TARGET ZONE" : "ЗОНА УДАРА ПЕЧАТЬЮ";
+        if (soulQueueStripText != null)
+        {
+            soulQueueStripText.text = language == HeavenOfficeLanguage.English
+                ? $"SOUL QUEUE  |  current {current}/{total}  |  next souls waiting"
+                : $"ОЧЕРЕДЬ ДУШ  |  дело {current}/{total}  |  следующие души ждут";
+        }
+
+        if (reincarnationLeverText != null)
+        {
+            reincarnationLeverText.text = language == HeavenOfficeLanguage.English ? "REINCARNATE" : "РЕИНКАРНАЦИЯ";
+        }
+
+        if (mirrorTeaserText != null)
+        {
+            mirrorTeaserText.text = language == HeavenOfficeLanguage.English ? "MIRROR\nSOON" : "ЗЕРКАЛО\nПОЗЖЕ";
+        }
+
+        if (scalesTeaserText != null)
+        {
+            scalesTeaserText.text = language == HeavenOfficeLanguage.English ? "SCALES\nSOON" : "ВЕСЫ\nПОЗЖЕ";
+        }
 
         string tags = document.tags.Count == 0
             ? (language == HeavenOfficeLanguage.English ? "no special notes" : "особых пометок нет")
@@ -286,6 +328,12 @@ public class HeavenOfficeView : MonoBehaviour
         mistakesText.text = language == HeavenOfficeLanguage.English ? $"Errors: {mistakes}/{maxMistakes}" : $"Ошибки: {mistakes}/{maxMistakes}";
         comboText.text = language == HeavenOfficeLanguage.English ? $"Combo: {combo}" : $"Серия: {combo}";
         tierText.text = $"Tier {tier}";
+        if (soulQueueStripText != null)
+        {
+            soulQueueStripText.text = language == HeavenOfficeLanguage.English
+                ? $"SOUL QUEUE  |  current {current}/{total}  |  office pressure stable"
+                : $"ОЧЕРЕДЬ ДУШ  |  дело {current}/{total}  |  канцелярия держит темп";
+        }
     }
 
     public void UpdateTimer(float remaining, float limit)
@@ -664,6 +712,63 @@ public class HeavenOfficeView : MonoBehaviour
         }
 
         return orderedSprites[Mathf.Clamp(fallbackIndex, 0, orderedSprites.Length - 1)];
+    }
+
+    private void BuildOfficeDesk(RectTransform center)
+    {
+        RectTransform desk = Panel("MainOfficeDesk", center, new Color(0.62f, 0.48f, 0.32f, 0.38f), new Vector2(0f, 0f), new Vector2(1f, 0.58f), Vector2.zero);
+        desk.offsetMin = new Vector2(18f, 12f);
+        desk.offsetMax = new Vector2(-18f, 0f);
+
+        RectTransform archive = Panel("ArchiveTeaser", center, new Color(0.38f, 0.34f, 0.28f, 0.5f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(104f, 50f));
+        archive.pivot = new Vector2(0f, 1f);
+        archive.anchoredPosition = new Vector2(18f, -68f);
+        archive.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.12f);
+        Text archiveText = Label("ARCHIVE", archive, 13, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1f, 1f, 1f, 0.72f));
+        Stretch(archiveText.rectTransform, 6, 6, 6, 6);
+
+        RectTransform collection = Panel("CollectionTeaser", center, new Color(0.32f, 0.42f, 0.54f, 0.5f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(104f, 50f));
+        collection.pivot = new Vector2(1f, 1f);
+        collection.anchoredPosition = new Vector2(-18f, -68f);
+        collection.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.12f);
+        Text collectionText = Label("CARDS", collection, 13, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1f, 1f, 1f, 0.72f));
+        Stretch(collectionText.rectTransform, 6, 6, 6, 6);
+    }
+
+    private void BuildReincarnationLever(RectTransform center)
+    {
+        reincarnationLeverRect = Panel("ReincarnationLever", center, new Color(0.35f, 0.22f, 0.15f, 0.94f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(106f, 142f));
+        reincarnationLeverRect.pivot = new Vector2(1f, 0f);
+        reincarnationLeverRect.anchoredPosition = new Vector2(-34f, 102f);
+        reincarnationLeverRect.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.35f);
+
+        Button leverButton = reincarnationLeverRect.gameObject.AddComponent<Button>();
+        leverButton.transition = Selectable.Transition.ColorTint;
+        leverButton.onClick.AddListener(() => onStampTargetPressed?.Invoke());
+
+        RectTransform handle = Panel("LeverHandle", reincarnationLeverRect, new Color(0.82f, 0.18f, 0.1f), new Vector2(0.5f, 0.58f), new Vector2(0.5f, 0.58f), new Vector2(24f, 78f));
+        handle.localEulerAngles = new Vector3(0f, 0f, -16f);
+        handle.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.24f);
+
+        reincarnationLeverText = Label("LEVER", reincarnationLeverRect, 13, FontStyle.Bold, TextAnchor.LowerCenter, Color.white);
+        Stretch(reincarnationLeverText.rectTransform, 6, 6, 8, -78);
+    }
+
+    private void BuildFullVersionTeasers(RectTransform center)
+    {
+        RectTransform mirror = Panel("MirrorFullVersionTeaser", center, new Color(0.5f, 0.72f, 0.82f, 0.28f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(90f, 74f));
+        mirror.pivot = new Vector2(0f, 0f);
+        mirror.anchoredPosition = new Vector2(34f, 104f);
+        mirror.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.14f);
+        mirrorTeaserText = Label("MIRROR", mirror, 12, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1f, 1f, 1f, 0.58f));
+        Stretch(mirrorTeaserText.rectTransform, 6, 6, 6, 6);
+
+        RectTransform scales = Panel("ScalesFullVersionTeaser", center, new Color(0.78f, 0.64f, 0.25f, 0.3f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(90f, 74f));
+        scales.pivot = new Vector2(0f, 0f);
+        scales.anchoredPosition = new Vector2(34f, 188f);
+        scales.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.14f);
+        scalesTeaserText = Label("SCALES", scales, 12, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1f, 1f, 1f, 0.58f));
+        Stretch(scalesTeaserText.rectTransform, 6, 6, 6, 6);
     }
 
     private void BuildDestinationTrays(RectTransform center)
