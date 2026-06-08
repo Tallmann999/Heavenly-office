@@ -37,6 +37,9 @@
 # Visual Studio cache directory
 .vs/
 
+# Local helper tool source cloned only to build C:\Users\User\.cargo\bin\unity-cli.exe
+/unity-cli/
+
 # Gradle cache directory
 .gradle/
 
