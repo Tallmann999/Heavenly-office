@@ -120,136 +120,137 @@ public class HeavenOfficeView : MonoBehaviour
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         CanvasScaler scaler = canvas.gameObject.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1280, 720);
+        scaler.referenceResolution = new Vector2(1600, 900);
         scaler.matchWidthOrHeight = 0.5f;
         canvas.gameObject.AddComponent<GraphicRaycaster>();
 
         RectTransform root = canvas.GetComponent<RectTransform>();
         Image background = canvas.gameObject.AddComponent<Image>();
-        background.color = new Color(0.86f, 0.93f, 0.98f);
+        background.color = new Color(0.07f, 0.075f, 0.08f);
 
-        RectTransform top = Panel("TopPanel", root, new Color(0.96f, 0.9f, 0.72f), Vector2.zero, Vector2.zero, Vector2.zero);
+        RectTransform top = Panel("TopHud", root, new Color(0.07f, 0.075f, 0.085f, 0.98f), Vector2.zero, Vector2.zero, Vector2.zero);
         top.anchorMin = new Vector2(0f, 1f);
         top.anchorMax = new Vector2(1f, 1f);
-        top.offsetMin = new Vector2(0f, -84f);
+        top.offsetMin = new Vector2(0f, -72f);
         top.offsetMax = Vector2.zero;
-        titleText = Label("Heaven Office / Божественная канцелярия", top, 25, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.22f, 0.18f, 0.12f));
-        Stretch(titleText.rectTransform, 18, 0, 0, -36);
+        top.gameObject.AddComponent<Outline>().effectColor = new Color(0.78f, 0.52f, 0.24f, 0.38f);
 
-        scoreText = TopLabel("Счёт: 0", top, 20, 450);
-        queueText = TopLabel("Очередь: 1/12", top, 20, 640);
-        timerText = TopLabel("Таймер: 12.0", top, 20, 850);
-        mistakesText = TopLabel("Ошибки: 0/3", top, 20, 1060);
-        comboText = TopLabel("Серия: 0", top, 17, 450, -42);
-        tierText = TopLabel("Tier 0", top, 17, 640, -42);
+        titleText = Label("DIVINE OFFICE", top, 32, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.86f, 0.62f, 0.32f));
+        Stretch(titleText.rectTransform, 360, 360, 12, -6);
+        Text subtitle = Label("Soul Distribution Department No. 7", top, 15, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.67f, 0.53f, 0.35f));
+        subtitle.rectTransform.anchorMin = new Vector2(0.35f, 0f);
+        subtitle.rectTransform.anchorMax = new Vector2(0.65f, 0.45f);
+        subtitle.rectTransform.offsetMin = Vector2.zero;
+        subtitle.rectTransform.offsetMax = Vector2.zero;
 
-        RectTransform timerBar = Panel("TimerBar", top, new Color(0.72f, 0.77f, 0.84f), Vector2.zero, new Vector2(1f, 0f), Vector2.zero);
-        timerBar.offsetMin = new Vector2(12f, 9f);
-        timerBar.offsetMax = new Vector2(-12f, 25f);
-        timerFill = Panel("TimerFill", timerBar, new Color(0.2f, 0.58f, 0.82f), new Vector2(0f, 0f), new Vector2(0f, 1f), Vector2.zero).GetComponent<Image>();
+        scoreText = TopLabel("Score: 0", top, 16, 24);
+        queueText = TopLabel("Case: 1/12", top, 16, 170);
+        timerText = TopLabel("Timer: 12.0", top, 16, 1280);
+        mistakesText = TopLabel("Errors: 0/3", top, 16, 1420);
+        comboText = TopLabel("Combo: 0", top, 14, 24, -44);
+        tierText = TopLabel("Tier 0", top, 14, 170, -44);
+
+        RectTransform timerBar = Panel("TimerBar", top, new Color(0.24f, 0.2f, 0.15f), new Vector2(0.78f, 0f), new Vector2(0.98f, 0f), Vector2.zero);
+        timerBar.offsetMin = new Vector2(0f, 12f);
+        timerBar.offsetMax = new Vector2(0f, 22f);
+        timerFill = Panel("TimerFill", timerBar, new Color(0.82f, 0.52f, 0.22f), new Vector2(0f, 0f), new Vector2(0f, 1f), Vector2.zero).GetComponent<Image>();
         timerFill.rectTransform.pivot = new Vector2(0f, 0.5f);
         Stretch(timerFill.rectTransform, 0, 0, 0, 0);
 
-        RectTransform bottom = Panel("BottomPanel", root, new Color(0.91f, 0.94f, 0.96f), Vector2.zero, Vector2.zero, Vector2.zero);
+        RectTransform bottom = Panel("BottomHud", root, new Color(0.07f, 0.075f, 0.085f, 0.98f), Vector2.zero, Vector2.zero, Vector2.zero);
         bottom.anchorMin = Vector2.zero;
         bottom.anchorMax = new Vector2(1f, 0f);
         bottom.offsetMin = Vector2.zero;
-        bottom.offsetMax = new Vector2(0f, 92f);
-        ruleHintText = Label("Подсказка правила: ", bottom, 20, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.16f, 0.22f, 0.28f));
-        Stretch(ruleHintText.rectTransform, 18, 18, 42, -4);
-        feedbackText = Label("Последнее решение: ", bottom, 20, FontStyle.Normal, TextAnchor.MiddleLeft, new Color(0.28f, 0.28f, 0.32f));
-        Stretch(feedbackText.rectTransform, 18, 18, 2, -46);
+        bottom.offsetMax = new Vector2(0f, 84f);
+        bottom.gameObject.AddComponent<Outline>().effectColor = new Color(0.78f, 0.52f, 0.24f, 0.3f);
+        ruleHintText = Label("Hint: ", bottom, 17, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.82f, 0.68f, 0.46f));
+        feedbackText = Label("Decision: ", bottom, 17, FontStyle.Normal, TextAnchor.MiddleCenter, new Color(0.74f, 0.72f, 0.66f));
         CenterBottomHints();
 
-        RectTransform left = Panel("LeftStampPanel", root, new Color(0.78f, 0.87f, 0.94f), Vector2.zero, Vector2.zero, Vector2.zero);
-        left.anchorMin = Vector2.zero;
-        left.anchorMax = new Vector2(0f, 1f);
-        left.offsetMin = new Vector2(0f, 92f);
-        left.offsetMax = new Vector2(230f, -84f);
-        RectTransform right = Panel("RightStampPanel", root, new Color(0.78f, 0.87f, 0.94f), Vector2.one, Vector2.one, Vector2.zero);
-        right.anchorMin = new Vector2(1f, 0f);
-        right.anchorMax = Vector2.one;
-        right.offsetMin = new Vector2(-230f, 92f);
-        right.offsetMax = new Vector2(0f, -84f);
-        RectTransform center = Panel("CentralWorkZone", root, new Color(0.93f, 0.96f, 0.98f), Vector2.zero, Vector2.one, Vector2.zero);
-        center.offsetMin = new Vector2(230f, 92f);
-        center.offsetMax = new Vector2(-230f, -84f);
+        RectTransform center = Panel("CentralWorkZone", root, new Color(0.11f, 0.11f, 0.12f), Vector2.zero, Vector2.one, Vector2.zero);
+        center.offsetMin = new Vector2(0f, 84f);
+        center.offsetMax = new Vector2(0f, -72f);
 
         BuildOfficeDesk(center);
 
-        AddStampButton(left, StampType.Heaven, "Рай", "HEAVEN", new Color(0.22f, 0.68f, 0.35f), -92, 0f);
-        AddStampButton(left, StampType.Appeal, "Апелляция", "APPEAL", new Color(0.94f, 0.68f, 0.16f), -248, 0f);
-        AddStampButton(right, StampType.Hell, "Ад", "HELL", new Color(0.78f, 0.18f, 0.14f), -92, 0f);
-        AddStampButton(right, StampType.Audit, "Проверка", "AUDIT", new Color(0.28f, 0.48f, 0.68f), -248, 0f);
-
-        soulQueueStrip = Panel("SoulQueueStrip", center, new Color(0.16f, 0.22f, 0.29f, 0.88f), new Vector2(0.12f, 1f), new Vector2(0.88f, 1f), new Vector2(0f, 46f)).GetComponent<Image>();
+        soulQueueStrip = Panel("SoulQueue", center, new Color(0.16f, 0.12f, 0.09f, 0.9f), new Vector2(0.02f, 0.26f), new Vector2(0.22f, 0.86f), Vector2.zero).GetComponent<Image>();
         soulQueueStripRect = soulQueueStrip.rectTransform;
-        soulQueueStripRect.pivot = new Vector2(0.5f, 1f);
-        soulQueueStripRect.anchoredPosition = new Vector2(0f, -10f);
-        soulQueueStrip.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.3f);
-        soulQueueStripText = Label("SOUL QUEUE  |  waiting for first case", soulQueueStripRect, 17, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
-        Stretch(soulQueueStripText.rectTransform, 12, 12, 4, -4);
+        soulQueueStripRect.offsetMin = Vector2.zero;
+        soulQueueStripRect.offsetMax = Vector2.zero;
+        soulQueueStrip.gameObject.AddComponent<Outline>().effectColor = new Color(0.82f, 0.57f, 0.27f, 0.45f);
+        AttachDeskZone(soulQueueStripRect, "soul_queue", false);
+        soulQueueStripText = Label("SOUL QUEUE\n\nwaiting souls\nempty sprites", soulQueueStripRect, 16, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.92f, 0.84f, 0.7f));
+        Stretch(soulQueueStripText.rectTransform, 12, 12, 12, -12);
 
-        soulCard = Panel("SoulWindow", center, new Color(0.72f, 0.84f, 0.98f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(280f, 84f)).GetComponent<Image>();
+        soulCard = Panel("SoulWindow", center, new Color(0.20f, 0.31f, 0.35f, 0.96f), new Vector2(0.48f, 0.66f), new Vector2(0.66f, 0.93f), Vector2.zero).GetComponent<Image>();
         soulRect = soulCard.rectTransform;
-        soulRect.anchoredPosition = new Vector2(0f, -92f);
-        soulCard.gameObject.AddComponent<Outline>().effectColor = new Color(0.2f, 0.38f, 0.58f, 0.55f);
-        soulText = Label("Душа", soulRect, 20, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
+        soulRect.offsetMin = Vector2.zero;
+        soulRect.offsetMax = Vector2.zero;
+        soulCard.gameObject.AddComponent<Outline>().effectColor = new Color(0.82f, 0.57f, 0.27f, 0.45f);
+        AttachDeskZone(soulRect, "soul_window", false);
+        soulText = Label("CURRENT SOUL", soulRect, 20, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.93f, 0.91f, 0.82f));
         Stretch(soulText.rectTransform, 8, 8, 8, 8);
 
-        reactionText = Label("", center, 18, FontStyle.Italic, TextAnchor.MiddleCenter, new Color(0.18f, 0.25f, 0.32f));
-        reactionText.rectTransform.anchorMin = new Vector2(0.18f, 0.68f);
-        reactionText.rectTransform.anchorMax = new Vector2(0.82f, 0.77f);
+        reactionText = Label("", center, 16, FontStyle.Italic, TextAnchor.MiddleCenter, new Color(0.9f, 0.82f, 0.68f));
+        reactionText.rectTransform.anchorMin = new Vector2(0.28f, 0.57f);
+        reactionText.rectTransform.anchorMax = new Vector2(0.68f, 0.65f);
         reactionText.rectTransform.offsetMin = Vector2.zero;
         reactionText.rectTransform.offsetMax = Vector2.zero;
 
-        documentCard = Panel("SoulDossier", center, new Color(1f, 0.97f, 0.84f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(500f, 360f)).GetComponent<Image>();
+        documentCard = Panel("SoulDossier", center, new Color(0.94f, 0.86f, 0.67f), new Vector2(0.27f, 0.18f), new Vector2(0.47f, 0.69f), Vector2.zero).GetComponent<Image>();
         documentRect = documentCard.rectTransform;
-        documentRect.anchoredPosition = new Vector2(0f, -50f);
-        documentCard.gameObject.AddComponent<Outline>().effectColor = new Color(0.38f, 0.3f, 0.16f, 0.28f);
+        documentRect.offsetMin = Vector2.zero;
+        documentRect.offsetMax = Vector2.zero;
+        documentRect.localEulerAngles = new Vector3(0f, 0f, -3.5f);
+        documentCard.gameObject.AddComponent<Outline>().effectColor = new Color(0.18f, 0.12f, 0.06f, 0.58f);
+        AttachDeskZone(documentRect, "soul_dossier", false);
         Button documentButton = documentCard.gameObject.AddComponent<Button>();
         documentButton.transition = Selectable.Transition.ColorTint;
         documentButton.onClick.AddListener(() => onStampTargetPressed?.Invoke());
 
-        documentText = Label("", documentRect, 17, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.18f, 0.16f, 0.13f));
-        Stretch(documentText.rectTransform, 26, 142, 22, -24);
+        documentText = Label("", documentRect, 15, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.18f, 0.16f, 0.13f));
+        Stretch(documentText.rectTransform, 24, 126, 20, -22);
 
-        photoFrame = Panel("SoulPhotoSlot", documentRect, new Color(0.9f, 0.88f, 0.76f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(104f, 124f)).GetComponent<Image>();
-        photoFrame.rectTransform.anchoredPosition = new Vector2(-78f, -86f);
+        photoFrame = Panel("SoulPhotoSlot", documentRect, new Color(0.9f, 0.88f, 0.76f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(92f, 112f)).GetComponent<Image>();
+        photoFrame.rectTransform.anchoredPosition = new Vector2(-66f, -78f);
         photoFrame.gameObject.AddComponent<Outline>().effectColor = new Color(0.36f, 0.31f, 0.22f, 0.55f);
-        photoText = Label("ФОТО", photoFrame.rectTransform, 18, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.42f, 0.39f, 0.33f));
+        photoText = Label("PHOTO", photoFrame.rectTransform, 16, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.42f, 0.39f, 0.33f));
         Stretch(photoText.rectTransform, 6, 6, 6, 6);
 
-        stampMarkPanel = Panel("StampInkTrace", documentRect, new Color(0.2f, 0.5f, 0.26f, 0.14f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(184f, 88f)).GetComponent<Image>();
+        stampMarkPanel = Panel("StampInkTrace", documentRect, new Color(0.2f, 0.5f, 0.26f, 0.14f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(166f, 78f)).GetComponent<Image>();
         stampMarkRect = stampMarkPanel.rectTransform;
         stampMarkRect.anchorMin = new Vector2(1f, 0f);
         stampMarkRect.anchorMax = new Vector2(1f, 0f);
-        stampMarkRect.anchoredPosition = new Vector2(-118f, 74f);
+        stampMarkRect.anchoredPosition = new Vector2(-105f, 68f);
         stampMarkRect.localEulerAngles = new Vector3(0f, 0f, -8f);
         stampMarkPanel.gameObject.AddComponent<Outline>().effectColor = new Color(0.2f, 0.5f, 0.26f, 0.68f);
         stampMarkTopLine = Panel("StampTraceLineTop", stampMarkRect, new Color(0.2f, 0.5f, 0.26f, 0.55f), new Vector2(0.08f, 0.7f), new Vector2(0.92f, 0.7f), new Vector2(0f, 3f)).GetComponent<Image>();
         stampMarkBottomLine = Panel("StampTraceLineBottom", stampMarkRect, new Color(0.2f, 0.5f, 0.26f, 0.55f), new Vector2(0.08f, 0.28f), new Vector2(0.92f, 0.28f), new Vector2(0f, 3f)).GetComponent<Image>();
-        stampMarkText = Label("", stampMarkRect, 24, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.2f, 0.5f, 0.26f, 0.86f));
+        stampMarkText = Label("", stampMarkRect, 22, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.2f, 0.5f, 0.26f, 0.86f));
         Stretch(stampMarkText.rectTransform, 8, 8, 8, 8);
         stampMarkPanel.gameObject.SetActive(false);
 
-        targetZoneText = Label("ЗОНА УДАРА ПЕЧАТЬЮ", center, 18, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.42f, 0.42f, 0.46f));
-        targetZoneText.rectTransform.anchorMin = new Vector2(0.3f, 0.06f);
-        targetZoneText.rectTransform.anchorMax = new Vector2(0.7f, 0.15f);
+        targetZoneText = Label("STAMP TARGET", center, 15, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.74f, 0.64f, 0.44f));
+        targetZoneText.rectTransform.anchorMin = new Vector2(0.34f, 0.12f);
+        targetZoneText.rectTransform.anchorMax = new Vector2(0.47f, 0.18f);
         targetZoneText.rectTransform.offsetMin = Vector2.zero;
         targetZoneText.rectTransform.offsetMax = Vector2.zero;
         Button targetButton = targetZoneText.gameObject.AddComponent<Button>();
         targetButton.onClick.AddListener(() => onStampTargetPressed?.Invoke());
 
-        BuildReincarnationLever(center);
-        BuildFullVersionTeasers(center);
+        AddDeskStampButton(center, StampType.Heaven, "HEAVEN", "HEAVEN", new Color(0.22f, 0.58f, 0.32f), -210f);
+        AddDeskStampButton(center, StampType.Hell, "HELL", "HELL", new Color(0.66f, 0.16f, 0.12f), -70f);
+        AddDeskStampButton(center, StampType.Audit, "AUDIT", "AUDIT", new Color(0.18f, 0.38f, 0.64f), 70f);
+        AddDeskStampButton(center, StampType.Appeal, "APPEAL", "APPEAL", new Color(0.46f, 0.26f, 0.62f), 210f);
+
         BuildDestinationTrays(center);
+        BuildFullVersionTeasers(center);
+        BuildReincarnationLever(center);
         BuildHeldStamp(root);
         BuildFinalPanel(root);
         BuildStartPanel(root);
         CompactTopPanel();
     }
-
     public void Bind(Action<StampType> stampSelected, Action stampTargetPressed, Action<HeavenOfficeLanguage> languageSelected, Action start, Action restart)
     {
         onStampSelected = stampSelected;
@@ -268,10 +269,13 @@ public class HeavenOfficeView : MonoBehaviour
     public void ShowDocument(SoulDocumentData document, SoulDocumentGenerator generator, int current, int total, HeavenOfficeLanguage language)
     {
         currentLanguage = language;
-        documentRect.anchoredPosition = new Vector2(0f, -50f);
-        soulRect.anchoredPosition = new Vector2(0f, -92f);
-        documentCard.color = new Color(1f, 0.97f, 0.84f);
-        soulCard.color = new Color(0.72f, 0.84f, 0.98f);
+        documentRect.offsetMin = Vector2.zero;
+        documentRect.offsetMax = Vector2.zero;
+        documentRect.localEulerAngles = new Vector3(0f, 0f, -3.5f);
+        soulRect.offsetMin = Vector2.zero;
+        soulRect.offsetMax = Vector2.zero;
+        documentCard.color = new Color(0.94f, 0.86f, 0.67f);
+        soulCard.color = new Color(0.20f, 0.31f, 0.35f, 0.96f);
         if (stampMarkPanel != null)
         {
             stampMarkPanel.gameObject.SetActive(false);
@@ -340,8 +344,8 @@ public class HeavenOfficeView : MonoBehaviour
     {
         float ratio = Mathf.Clamp01(remaining / Mathf.Max(0.01f, limit));
         timerText.text = currentLanguage == HeavenOfficeLanguage.English ? $"Timer: {Mathf.Max(0f, remaining):0.0}" : $"Таймер: {Mathf.Max(0f, remaining):0.0}";
-        timerText.color = ratio <= 0.25f ? new Color(0.86f, 0.12f, 0.1f) : new Color(0.18f, 0.22f, 0.26f);
-        timerFill.color = ratio <= 0.25f ? new Color(0.88f, 0.16f, 0.12f) : new Color(0.2f, 0.58f, 0.82f);
+        timerText.color = ratio <= 0.25f ? new Color(0.95f, 0.24f, 0.16f) : new Color(0.84f, 0.75f, 0.58f);
+        timerFill.color = ratio <= 0.25f ? new Color(0.88f, 0.16f, 0.12f) : new Color(0.82f, 0.52f, 0.22f);
         timerFill.rectTransform.anchorMax = new Vector2(ratio, 1f);
     }
 
@@ -424,7 +428,7 @@ public class HeavenOfficeView : MonoBehaviour
 
         stampMarkRect.localScale = Vector3.one;
         reactionText.text = ReactionFor(stamp);
-        soulCard.color = Color.Lerp(new Color(0.72f, 0.84f, 0.98f), color, 0.35f);
+        soulCard.color = Color.Lerp(new Color(0.20f, 0.31f, 0.35f, 0.96f), color, 0.35f);
         yield return new WaitForSeconds(holdTime);
     }
 
@@ -558,15 +562,15 @@ public class HeavenOfficeView : MonoBehaviour
     {
         if (titleText != null)
         {
-            titleText.gameObject.SetActive(false);
+            titleText.gameObject.SetActive(true);
         }
 
-        PlaceTopLabel(scoreText, 110f, -16f, 210f);
-        PlaceTopLabel(queueText, 330f, -16f, 230f);
-        PlaceTopLabel(timerText, 575f, -16f, 230f);
-        PlaceTopLabel(mistakesText, 830f, -16f, 230f);
-        PlaceTopLabel(comboText, 110f, -44f, 180f);
-        PlaceTopLabel(tierText, 330f, -44f, 150f);
+        PlaceTopLabel(scoreText, 24f, -16f, 130f);
+        PlaceTopLabel(queueText, 170f, -16f, 150f);
+        PlaceTopLabel(timerText, 1280f, -16f, 130f);
+        PlaceTopLabel(mistakesText, 1420f, -16f, 150f);
+        PlaceTopLabel(comboText, 24f, -44f, 130f);
+        PlaceTopLabel(tierText, 170f, -44f, 120f);
     }
 
     private void CenterBottomHints()
@@ -595,6 +599,7 @@ public class HeavenOfficeView : MonoBehaviour
 
         label.rectTransform.sizeDelta = new Vector2(width, 30f);
         label.rectTransform.anchoredPosition = new Vector2(x, y);
+        label.color = new Color(0.84f, 0.75f, 0.58f);
     }
 
     private Vector2 GetPointerPosition()
@@ -716,31 +721,49 @@ public class HeavenOfficeView : MonoBehaviour
 
     private void BuildOfficeDesk(RectTransform center)
     {
-        RectTransform desk = Panel("MainOfficeDesk", center, new Color(0.62f, 0.48f, 0.32f, 0.38f), new Vector2(0f, 0f), new Vector2(1f, 0.58f), Vector2.zero);
-        desk.offsetMin = new Vector2(18f, 12f);
-        desk.offsetMax = new Vector2(-18f, 0f);
+        RectTransform skyWindow = Panel("SoulWindowBackdrop", center, new Color(0.28f, 0.36f, 0.42f, 0.55f), new Vector2(0.40f, 0.58f), new Vector2(0.70f, 0.96f), Vector2.zero);
+        skyWindow.offsetMin = Vector2.zero;
+        skyWindow.offsetMax = Vector2.zero;
+        skyWindow.gameObject.AddComponent<Outline>().effectColor = new Color(0.82f, 0.57f, 0.27f, 0.2f);
 
-        RectTransform archive = Panel("ArchiveTeaser", center, new Color(0.38f, 0.34f, 0.28f, 0.5f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(104f, 50f));
+        RectTransform wall = Panel("StoneArchiveWall", center, new Color(0.17f, 0.16f, 0.15f, 0.8f), new Vector2(0.23f, 0.48f), new Vector2(0.39f, 0.93f), Vector2.zero);
+        wall.offsetMin = Vector2.zero;
+        wall.offsetMax = Vector2.zero;
+        wall.gameObject.AddComponent<Outline>().effectColor = new Color(0.78f, 0.52f, 0.24f, 0.25f);
+
+        RectTransform desk = Panel("MainOfficeDesk", center, new Color(0.29f, 0.18f, 0.10f, 0.96f), new Vector2(0.08f, 0.02f), new Vector2(0.88f, 0.43f), Vector2.zero);
+        desk.offsetMin = Vector2.zero;
+        desk.offsetMax = Vector2.zero;
+        desk.gameObject.AddComponent<Outline>().effectColor = new Color(0.78f, 0.52f, 0.24f, 0.45f);
+        AttachDeskZone(desk, "main_desk", false);
+
+        RectTransform archive = Panel("ArchiveTeaser", center, new Color(0.23f, 0.18f, 0.12f, 0.92f), new Vector2(0.25f, 0.72f), new Vector2(0.37f, 0.86f), Vector2.zero);
         archive.pivot = new Vector2(0f, 1f);
-        archive.anchoredPosition = new Vector2(18f, -68f);
-        archive.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.12f);
-        Text archiveText = Label("ARCHIVE", archive, 13, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1f, 1f, 1f, 0.72f));
+        archive.offsetMin = Vector2.zero;
+        archive.offsetMax = Vector2.zero;
+        archive.gameObject.AddComponent<Outline>().effectColor = new Color(0.82f, 0.57f, 0.27f, 0.45f);
+        AttachDeskZone(archive, "archive", false);
+        Text archiveText = Label("ARCHIVE\nempty shelf", archive, 13, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.92f, 0.84f, 0.7f));
         Stretch(archiveText.rectTransform, 6, 6, 6, 6);
 
-        RectTransform collection = Panel("CollectionTeaser", center, new Color(0.32f, 0.42f, 0.54f, 0.5f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(104f, 50f));
+        RectTransform collection = Panel("CollectionTeaser", center, new Color(0.16f, 0.18f, 0.22f, 0.9f), new Vector2(0.02f, 0.08f), new Vector2(0.13f, 0.24f), Vector2.zero);
         collection.pivot = new Vector2(1f, 1f);
-        collection.anchoredPosition = new Vector2(-18f, -68f);
-        collection.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.12f);
-        Text collectionText = Label("CARDS", collection, 13, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1f, 1f, 1f, 0.72f));
+        collection.offsetMin = Vector2.zero;
+        collection.offsetMax = Vector2.zero;
+        collection.gameObject.AddComponent<Outline>().effectColor = new Color(0.82f, 0.57f, 0.27f, 0.45f);
+        AttachDeskZone(collection, "card_collection", false);
+        Text collectionText = Label("CARDS\ncollection", collection, 13, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.92f, 0.84f, 0.7f));
         Stretch(collectionText.rectTransform, 6, 6, 6, 6);
     }
 
     private void BuildReincarnationLever(RectTransform center)
     {
-        reincarnationLeverRect = Panel("ReincarnationLever", center, new Color(0.35f, 0.22f, 0.15f, 0.94f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(106f, 142f));
+        reincarnationLeverRect = Panel("ReincarnationLever", center, new Color(0.32f, 0.20f, 0.12f, 0.96f), new Vector2(0.73f, 0.06f), new Vector2(0.83f, 0.33f), Vector2.zero);
         reincarnationLeverRect.pivot = new Vector2(1f, 0f);
-        reincarnationLeverRect.anchoredPosition = new Vector2(-34f, 102f);
-        reincarnationLeverRect.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.35f);
+        reincarnationLeverRect.offsetMin = Vector2.zero;
+        reincarnationLeverRect.offsetMax = Vector2.zero;
+        reincarnationLeverRect.gameObject.AddComponent<Outline>().effectColor = new Color(0.82f, 0.57f, 0.27f, 0.45f);
+        AttachDeskZone(reincarnationLeverRect, "reincarnation_lever", false);
 
         Button leverButton = reincarnationLeverRect.gameObject.AddComponent<Button>();
         leverButton.transition = Selectable.Transition.ColorTint;
@@ -750,34 +773,38 @@ public class HeavenOfficeView : MonoBehaviour
         handle.localEulerAngles = new Vector3(0f, 0f, -16f);
         handle.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.24f);
 
-        reincarnationLeverText = Label("LEVER", reincarnationLeverRect, 13, FontStyle.Bold, TextAnchor.LowerCenter, Color.white);
+        reincarnationLeverText = Label("NEW LIFE\nLEVER", reincarnationLeverRect, 13, FontStyle.Bold, TextAnchor.LowerCenter, new Color(0.94f, 0.82f, 0.58f));
         Stretch(reincarnationLeverText.rectTransform, 6, 6, 8, -78);
     }
 
     private void BuildFullVersionTeasers(RectTransform center)
     {
-        RectTransform mirror = Panel("MirrorFullVersionTeaser", center, new Color(0.5f, 0.72f, 0.82f, 0.28f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(90f, 74f));
+        RectTransform mirror = Panel("MirrorFullVersionTeaser", center, new Color(0.33f, 0.54f, 0.66f, 0.42f), new Vector2(0.56f, 0.22f), new Vector2(0.64f, 0.45f), Vector2.zero);
         mirror.pivot = new Vector2(0f, 0f);
-        mirror.anchoredPosition = new Vector2(34f, 104f);
-        mirror.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.14f);
-        mirrorTeaserText = Label("MIRROR", mirror, 12, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1f, 1f, 1f, 0.58f));
+        mirror.offsetMin = Vector2.zero;
+        mirror.offsetMax = Vector2.zero;
+        mirror.gameObject.AddComponent<Outline>().effectColor = new Color(0.75f, 0.86f, 1f, 0.26f);
+        AttachDeskZone(mirror, "past_life_mirror_teaser", true);
+        mirrorTeaserText = Label("PAST LIFE\nMIRROR\nfull version", mirror, 12, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.85f, 0.93f, 1f, 0.72f));
         Stretch(mirrorTeaserText.rectTransform, 6, 6, 6, 6);
 
-        RectTransform scales = Panel("ScalesFullVersionTeaser", center, new Color(0.78f, 0.64f, 0.25f, 0.3f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(90f, 74f));
+        RectTransform scales = Panel("ScalesFullVersionTeaser", center, new Color(0.70f, 0.54f, 0.19f, 0.42f), new Vector2(0.47f, 0.24f), new Vector2(0.55f, 0.43f), Vector2.zero);
         scales.pivot = new Vector2(0f, 0f);
-        scales.anchoredPosition = new Vector2(34f, 188f);
-        scales.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.14f);
-        scalesTeaserText = Label("SCALES", scales, 12, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1f, 1f, 1f, 0.58f));
+        scales.offsetMin = Vector2.zero;
+        scales.offsetMax = Vector2.zero;
+        scales.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 0.87f, 0.45f, 0.28f);
+        AttachDeskZone(scales, "karma_scales_teaser", true);
+        scalesTeaserText = Label("KARMA\nSCALES\nfull version", scales, 12, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1f, 0.88f, 0.55f, 0.75f));
         Stretch(scalesTeaserText.rectTransform, 6, 6, 6, 6);
     }
 
     private void BuildDestinationTrays(RectTransform center)
     {
-        Canvas canvas = center.GetComponentInParent<Canvas>();
-        Transform trayParent = canvas != null ? canvas.transform : center;
-        leftTrayRect = Panel("LeftDestinationTray", trayParent, new Color(0.18f, 0.56f, 0.28f, 0.82f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(150f, 150f));
+        Transform trayParent = center;
+        leftTrayRect = Panel("HeavenPortal", trayParent, new Color(0.10f, 0.48f, 0.30f, 0.86f), new Vector2(0.68f, 0.48f), new Vector2(0.76f, 0.82f), Vector2.zero);
         leftTrayRect.pivot = new Vector2(0f, 0f);
-        leftTrayRect.anchoredPosition = new Vector2(14f, 14f);
+        leftTrayRect.offsetMin = Vector2.zero;
+        leftTrayRect.offsetMax = Vector2.zero;
         leftTrayImage = leftTrayRect.GetComponent<Image>();
         if (paradiseDestinationSprite != null)
         {
@@ -785,14 +812,16 @@ public class HeavenOfficeView : MonoBehaviour
             leftTrayImage.preserveAspect = true;
             leftTrayImage.color = Color.white;
         }
-        leftTrayImage.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.55f);
-        Text leftLabel = Label("PARADISE\nOUT", leftTrayRect, 15, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
+        leftTrayImage.gameObject.AddComponent<Outline>().effectColor = new Color(0.62f, 1f, 0.74f, 0.45f);
+        AttachDeskZone(leftTrayRect, "portal_heaven", false);
+        Text leftLabel = Label("HEAVEN\nPORTAL", leftTrayRect, 15, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
         Stretch(leftLabel.rectTransform, 6, 6, 6, 6);
         leftLabel.gameObject.SetActive(paradiseDestinationSprite == null);
 
-        rightTrayRect = Panel("RightDestinationTray", trayParent, new Color(0.78f, 0.1f, 0.08f, 0.82f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(150f, 150f));
+        rightTrayRect = Panel("HellPortal", trayParent, new Color(0.60f, 0.08f, 0.05f, 0.88f), new Vector2(0.77f, 0.48f), new Vector2(0.85f, 0.82f), Vector2.zero);
         rightTrayRect.pivot = new Vector2(1f, 0f);
-        rightTrayRect.anchoredPosition = new Vector2(-14f, 14f);
+        rightTrayRect.offsetMin = Vector2.zero;
+        rightTrayRect.offsetMax = Vector2.zero;
         rightTrayImage = rightTrayRect.GetComponent<Image>();
         if (hellDestinationSprite != null)
         {
@@ -800,10 +829,27 @@ public class HeavenOfficeView : MonoBehaviour
             rightTrayImage.preserveAspect = true;
             rightTrayImage.color = Color.white;
         }
-        rightTrayImage.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.55f);
-        Text rightLabel = Label("HELL\nOUT", rightTrayRect, 15, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
+        rightTrayImage.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 0.42f, 0.32f, 0.45f);
+        AttachDeskZone(rightTrayRect, "portal_hell", false);
+        Text rightLabel = Label("HELL\nPORTAL", rightTrayRect, 15, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
         Stretch(rightLabel.rectTransform, 6, 6, 6, 6);
         rightLabel.gameObject.SetActive(hellDestinationSprite == null);
+
+        RectTransform auditPortal = Panel("AuditPortal", trayParent, new Color(0.08f, 0.25f, 0.58f, 0.86f), new Vector2(0.86f, 0.48f), new Vector2(0.94f, 0.82f), Vector2.zero);
+        auditPortal.offsetMin = Vector2.zero;
+        auditPortal.offsetMax = Vector2.zero;
+        auditPortal.gameObject.AddComponent<Outline>().effectColor = new Color(0.45f, 0.7f, 1f, 0.45f);
+        AttachDeskZone(auditPortal, "portal_audit", false);
+        Text auditLabel = Label("AUDIT\nPORTAL", auditPortal, 15, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
+        Stretch(auditLabel.rectTransform, 6, 6, 6, 6);
+
+        RectTransform appealPortal = Panel("AppealPortal", trayParent, new Color(0.34f, 0.18f, 0.50f, 0.82f), new Vector2(0.91f, 0.28f), new Vector2(0.985f, 0.47f), Vector2.zero);
+        appealPortal.offsetMin = Vector2.zero;
+        appealPortal.offsetMax = Vector2.zero;
+        appealPortal.gameObject.AddComponent<Outline>().effectColor = new Color(0.72f, 0.47f, 1f, 0.4f);
+        AttachDeskZone(appealPortal, "portal_appeal", false);
+        Text appealLabel = Label("APPEAL", appealPortal, 13, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
+        Stretch(appealLabel.rectTransform, 6, 6, 6, 6);
     }
 
     private void BuildHeldStamp(RectTransform root)
@@ -889,6 +935,56 @@ public class HeavenOfficeView : MonoBehaviour
         stampColors[stamp] = color;
     }
 
+    private void AddDeskStampButton(RectTransform parent, StampType stamp, string label, string mark, Color color, float x)
+    {
+        RectTransform baseRect = Panel(stamp + "DeskStampBase", parent, new Color(0.21f, 0.13f, 0.08f, 0.95f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(118f, 96f));
+        baseRect.pivot = new Vector2(0.5f, 0f);
+        baseRect.anchoredPosition = new Vector2(x, 30f);
+        baseRect.gameObject.AddComponent<Outline>().effectColor = new Color(0.82f, 0.57f, 0.27f, 0.45f);
+        AttachDeskZone(baseRect, "stamp_" + stamp.ToString().ToLowerInvariant(), false);
+
+        RectTransform rect = Panel(stamp + "Stamp", baseRect, color, new Vector2(0.5f, 0.56f), new Vector2(0.5f, 0.56f), new Vector2(86f, 66f));
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        Image image = rect.GetComponent<Image>();
+        bool hasStampSprite = stampSprites.TryGetValue(stamp, out Sprite stampSprite);
+        if (hasStampSprite)
+        {
+            image.sprite = stampSprite;
+            image.preserveAspect = true;
+            image.color = Color.white;
+        }
+
+        image.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.35f);
+        Button button = rect.gameObject.AddComponent<Button>();
+        button.transition = Selectable.Transition.ColorTint;
+
+        Text text = Label(mark, rect, 14, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
+        Stretch(text.rectTransform, 4, 4, 4, 4);
+        text.gameObject.SetActive(!hasStampSprite);
+
+        Text plate = Label(label, baseRect, 13, FontStyle.Bold, TextAnchor.LowerCenter, new Color(0.94f, 0.82f, 0.58f));
+        Stretch(plate.rectTransform, 4, 4, 4, -68);
+
+        stampButtons[stamp] = button;
+        stampImages[stamp] = image;
+        stampTexts[stamp] = text;
+        stampColors[stamp] = color;
+    }
+
+    private void AttachDeskZone(RectTransform rect, string zoneId, bool premiumTeaser)
+    {
+        if (rect == null) return;
+
+        Image image = rect.GetComponent<Image>();
+        MainOfficeDeskZone zone = rect.gameObject.GetComponent<MainOfficeDeskZone>();
+        if (zone == null)
+        {
+            zone = rect.gameObject.AddComponent<MainOfficeDeskZone>();
+        }
+
+        zone.Configure(zoneId, premiumTeaser, image);
+    }
+
     private void BuildFinalPanel(RectTransform root)
     {
         finalPanel = Panel("FinalPanel", root, new Color(0.12f, 0.16f, 0.2f, 0.88f), new Vector2(0f, 0f), new Vector2(1f, 1f), Vector2.zero).gameObject;
@@ -917,7 +1013,7 @@ public class HeavenOfficeView : MonoBehaviour
 
     private Text TopLabel(string text, RectTransform parent, int size, float x, float y = -18f)
     {
-        Text label = Label(text, parent, size, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.18f, 0.22f, 0.26f));
+        Text label = Label(text, parent, size, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.84f, 0.75f, 0.58f));
         label.rectTransform.anchorMin = new Vector2(0f, 1f);
         label.rectTransform.anchorMax = new Vector2(0f, 1f);
         label.rectTransform.sizeDelta = new Vector2(220f, 32f);
