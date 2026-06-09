@@ -25,6 +25,7 @@ public class HeavenOfficeView : MonoBehaviour
     private Sprite hellDestinationSprite;
 
     [SerializeField] private Font font;
+    [SerializeField] private GameObject mainOfficeLayoutPrefab;
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private Text scoreText;
     [SerializeField] private Text queueText;
@@ -80,6 +81,14 @@ public class HeavenOfficeView : MonoBehaviour
     private Action onStart;
     private Action onRestart;
     private HeavenOfficeLanguage currentLanguage = HeavenOfficeLanguage.Russian;
+    private GameObject mainOfficeLayoutInstance;
+    private bool hasInitialLayoutState;
+    private Vector2 documentInitialOffsetMin;
+    private Vector2 documentInitialOffsetMax;
+    private Vector3 documentInitialEuler;
+    private Vector2 soulInitialOffsetMin;
+    private Vector2 soulInitialOffsetMax;
+    private Vector3 soulInitialEuler;
 
     public void BuildIfNeeded(bool createUiAtRuntime)
     {
@@ -97,21 +106,22 @@ public class HeavenOfficeView : MonoBehaviour
         LoadReferenceSprites();
 
         Canvas existingCanvas = GetComponentInChildren<Canvas>();
-        if (existingCanvas != null && scoreText != null && documentRect != null)
+        bool canUseExistingCanvas = mainOfficeLayoutPrefab == null || mainOfficeLayoutInstance != null;
+        if (existingCanvas != null && canUseExistingCanvas && scoreText != null && documentRect != null && HasCurrentMainOfficeLayout(existingCanvas.transform))
         {
             return;
         }
 
         if (existingCanvas != null)
         {
-            if (Application.isPlaying)
-            {
-                Destroy(existingCanvas.gameObject);
-            }
-            else
-            {
-                DestroyImmediate(existingCanvas.gameObject);
-            }
+            existingCanvas.gameObject.SetActive(false);
+            DestroyUnityObject(existingCanvas.gameObject);
+        }
+
+        if (mainOfficeLayoutPrefab != null && TryBuildFromMainOfficeLayoutPrefab())
+        {
+            CacheInitialLayoutState();
+            return;
         }
 
         EnsureEventSystem();
@@ -250,6 +260,7 @@ public class HeavenOfficeView : MonoBehaviour
         BuildFinalPanel(root);
         BuildStartPanel(root);
         CompactTopPanel();
+        CacheInitialLayoutState();
     }
     public void Bind(Action<StampType> stampSelected, Action stampTargetPressed, Action<HeavenOfficeLanguage> languageSelected, Action start, Action restart)
     {
@@ -258,22 +269,27 @@ public class HeavenOfficeView : MonoBehaviour
         onLanguageSelected = languageSelected;
         onStart = start;
         onRestart = restart;
+
+        RebuildStampRuntimeCache();
         foreach (var pair in stampButtons)
         {
             StampType stamp = pair.Key;
-            pair.Value.onClick.RemoveAllListeners();
-            pair.Value.onClick.AddListener(() => onStampSelected?.Invoke(stamp));
+            BindButton(pair.Value, () => onStampSelected?.Invoke(stamp));
         }
+
+        BindButton(documentCard != null ? documentCard.GetComponent<Button>() : null, () => onStampTargetPressed?.Invoke());
+        BindButton(targetZoneText != null ? targetZoneText.GetComponent<Button>() : null, () => onStampTargetPressed?.Invoke());
+        BindButton(reincarnationLeverRect != null ? reincarnationLeverRect.GetComponent<Button>() : null, () => onStampTargetPressed?.Invoke());
+        BindButton(FindNamedButton("EnglishButton"), () => onLanguageSelected?.Invoke(HeavenOfficeLanguage.English));
+        BindButton(FindNamedButton("RussianButton"), () => onLanguageSelected?.Invoke(HeavenOfficeLanguage.Russian));
+        BindButton(FindNamedButton("StartButton"), () => onStart?.Invoke());
+        BindButton(FindNamedButton("RestartButton"), () => onRestart?.Invoke());
     }
 
     public void ShowDocument(SoulDocumentData document, SoulDocumentGenerator generator, int current, int total, HeavenOfficeLanguage language)
     {
         currentLanguage = language;
-        documentRect.offsetMin = Vector2.zero;
-        documentRect.offsetMax = Vector2.zero;
-        documentRect.localEulerAngles = new Vector3(0f, 0f, -3.5f);
-        soulRect.offsetMin = Vector2.zero;
-        soulRect.offsetMax = Vector2.zero;
+        RestoreInitialLayoutState();
         documentCard.color = new Color(0.94f, 0.86f, 0.67f);
         soulCard.color = new Color(0.20f, 0.31f, 0.35f, 0.96f);
         if (stampMarkPanel != null)
@@ -484,7 +500,7 @@ public class HeavenOfficeView : MonoBehaviour
             startPanel.SetActive(true);
             if (startButtonObject != null)
             {
-                startButtonObject.SetActive(false);
+                startButtonObject.SetActive(true);
             }
         }
     }
@@ -932,7 +948,7 @@ public class HeavenOfficeView : MonoBehaviour
         startButton.onClick.AddListener(() => onStart?.Invoke());
         startButtonText = Label("START", startButtonRect, 26, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
         Stretch(startButtonText.rectTransform, 6, 6, 6, 6);
-        startButtonObject.SetActive(false);
+        startButtonObject.SetActive(true);
     }
 
     private void AddStampButton(RectTransform parent, StampType stamp, string label, string mark, Color color, float y, float x)
@@ -1046,6 +1062,266 @@ public class HeavenOfficeView : MonoBehaviour
         label.rectTransform.sizeDelta = new Vector2(220f, 32f);
         label.rectTransform.anchoredPosition = new Vector2(x, y);
         return label;
+    }
+
+    private bool TryBuildFromMainOfficeLayoutPrefab()
+    {
+        if (mainOfficeLayoutPrefab == null)
+        {
+            return false;
+        }
+
+        try
+        {
+            mainOfficeLayoutInstance = Instantiate(mainOfficeLayoutPrefab, transform, false);
+        }
+        catch (InvalidCastException exception)
+        {
+            Debug.LogWarning($"HeavenOfficeView: invalid Main Office Layout Prefab reference. Reassign Assets/Prefabs/HeavenOfficeMainOfficeEditable.prefab. {exception.Message}");
+            mainOfficeLayoutPrefab = null;
+            return false;
+        }
+
+        mainOfficeLayoutInstance.name = mainOfficeLayoutPrefab.name + " Runtime";
+
+        HeavenOfficeView prefabView = mainOfficeLayoutInstance.GetComponentInChildren<HeavenOfficeView>(true);
+        Canvas prefabCanvas = mainOfficeLayoutInstance.GetComponentInChildren<Canvas>(true);
+        if (prefabView == null || prefabCanvas == null)
+        {
+            Debug.LogWarning("HeavenOfficeView: main office layout prefab must contain HeavenOfficeView and HeavenOfficeCanvas.");
+            DestroyUnityObject(mainOfficeLayoutInstance);
+            mainOfficeLayoutInstance = null;
+            return false;
+        }
+
+        CopySerializedUiReferencesFrom(prefabView);
+        DisablePrefabRuntimeComponents(mainOfficeLayoutInstance, prefabView);
+        EnsureEventSystem();
+        RebuildStampRuntimeCache();
+        return true;
+    }
+
+    private void CopySerializedUiReferencesFrom(HeavenOfficeView source)
+    {
+        font = source.font;
+        titleText = source.titleText;
+        scoreText = source.scoreText;
+        queueText = source.queueText;
+        timerText = source.timerText;
+        mistakesText = source.mistakesText;
+        comboText = source.comboText;
+        tierText = source.tierText;
+        soulText = source.soulText;
+        soulQueueStripText = source.soulQueueStripText;
+        reactionText = source.reactionText;
+        documentText = source.documentText;
+        stampMarkText = source.stampMarkText;
+        targetZoneText = source.targetZoneText;
+        reincarnationLeverText = source.reincarnationLeverText;
+        mirrorTeaserText = source.mirrorTeaserText;
+        scalesTeaserText = source.scalesTeaserText;
+        ruleHintText = source.ruleHintText;
+        feedbackText = source.feedbackText;
+        finalTitleText = source.finalTitleText;
+        finalStatsText = source.finalStatsText;
+        startTitleText = source.startTitleText;
+        startSubtitleText = source.startSubtitleText;
+        startButtonText = source.startButtonText;
+        restartButtonText = source.restartButtonText;
+        startButtonObject = source.startButtonObject;
+        timerFill = source.timerFill;
+        soulCard = source.soulCard;
+        soulQueueStrip = source.soulQueueStrip;
+        documentCard = source.documentCard;
+        photoFrame = source.photoFrame;
+        stampMarkPanel = source.stampMarkPanel;
+        stampMarkTopLine = source.stampMarkTopLine;
+        stampMarkBottomLine = source.stampMarkBottomLine;
+        heldStampImage = source.heldStampImage;
+        leftTrayImage = source.leftTrayImage;
+        rightTrayImage = source.rightTrayImage;
+        documentRect = source.documentRect;
+        soulRect = source.soulRect;
+        soulQueueStripRect = source.soulQueueStripRect;
+        reincarnationLeverRect = source.reincarnationLeverRect;
+        stampMarkRect = source.stampMarkRect;
+        heldStampRect = source.heldStampRect;
+        leftTrayRect = source.leftTrayRect;
+        rightTrayRect = source.rightTrayRect;
+        finalPanel = source.finalPanel;
+        startPanel = source.startPanel;
+        photoText = source.photoText;
+        heldStampText = source.heldStampText;
+    }
+
+    private void CacheInitialLayoutState()
+    {
+        if (documentRect == null || soulRect == null)
+        {
+            hasInitialLayoutState = false;
+            return;
+        }
+
+        documentInitialOffsetMin = documentRect.offsetMin;
+        documentInitialOffsetMax = documentRect.offsetMax;
+        documentInitialEuler = documentRect.localEulerAngles;
+        soulInitialOffsetMin = soulRect.offsetMin;
+        soulInitialOffsetMax = soulRect.offsetMax;
+        soulInitialEuler = soulRect.localEulerAngles;
+        hasInitialLayoutState = true;
+    }
+
+    private void RestoreInitialLayoutState()
+    {
+        if (!hasInitialLayoutState)
+        {
+            if (documentRect != null)
+            {
+                documentRect.offsetMin = Vector2.zero;
+                documentRect.offsetMax = Vector2.zero;
+                documentRect.localEulerAngles = new Vector3(0f, 0f, -3.5f);
+            }
+
+            if (soulRect != null)
+            {
+                soulRect.offsetMin = Vector2.zero;
+                soulRect.offsetMax = Vector2.zero;
+            }
+
+            return;
+        }
+
+        documentRect.offsetMin = documentInitialOffsetMin;
+        documentRect.offsetMax = documentInitialOffsetMax;
+        documentRect.localEulerAngles = documentInitialEuler;
+        soulRect.offsetMin = soulInitialOffsetMin;
+        soulRect.offsetMax = soulInitialOffsetMax;
+        soulRect.localEulerAngles = soulInitialEuler;
+    }
+
+    private void DisablePrefabRuntimeComponents(GameObject prefabRoot, HeavenOfficeView prefabView)
+    {
+        foreach (HeavenOfficeGameController controller in prefabRoot.GetComponentsInChildren<HeavenOfficeGameController>(true))
+        {
+            controller.enabled = false;
+            DestroyUnityObject(controller);
+        }
+
+        foreach (MainOfficeEditableSceneBootstrap bootstrap in prefabRoot.GetComponentsInChildren<MainOfficeEditableSceneBootstrap>(true))
+        {
+            bootstrap.enabled = false;
+            DestroyUnityObject(bootstrap);
+        }
+
+        prefabView.enabled = false;
+        DestroyUnityObject(prefabView);
+    }
+
+    private void RebuildStampRuntimeCache()
+    {
+        stampButtons.Clear();
+        stampImages.Clear();
+        stampTexts.Clear();
+        stampColors.Clear();
+
+        RegisterStampButtonFromLayout(StampType.Heaven, new Color(0.22f, 0.58f, 0.32f));
+        RegisterStampButtonFromLayout(StampType.Hell, new Color(0.66f, 0.16f, 0.12f));
+        RegisterStampButtonFromLayout(StampType.Audit, new Color(0.18f, 0.38f, 0.64f));
+        RegisterStampButtonFromLayout(StampType.Appeal, new Color(0.46f, 0.26f, 0.62f));
+    }
+
+    private void RegisterStampButtonFromLayout(StampType stamp, Color fallbackColor)
+    {
+        Transform stampTransform = FindDeepChild(GetRuntimeLayoutSearchRoot(), stamp + "Stamp");
+        if (stampTransform == null)
+        {
+            return;
+        }
+
+        Button button = stampTransform.GetComponent<Button>();
+        Image image = stampTransform.GetComponent<Image>();
+        Text text = stampTransform.GetComponentInChildren<Text>(true);
+        if (button == null || image == null || text == null)
+        {
+            return;
+        }
+
+        stampButtons[stamp] = button;
+        stampImages[stamp] = image;
+        stampTexts[stamp] = text;
+        stampColors[stamp] = image.color.a > 0f ? image.color : fallbackColor;
+
+        if (image.sprite != null)
+        {
+            stampSprites[stamp] = image.sprite;
+        }
+        else
+        {
+            stampSprites.Remove(stamp);
+        }
+    }
+
+    private Button FindNamedButton(string name)
+    {
+        Transform target = FindDeepChild(GetRuntimeLayoutSearchRoot(), name);
+        return target != null ? target.GetComponent<Button>() : null;
+    }
+
+    private Transform GetRuntimeLayoutSearchRoot()
+    {
+        return mainOfficeLayoutInstance != null ? mainOfficeLayoutInstance.transform : transform;
+    }
+
+    private Transform FindDeepChild(Transform parent, string name)
+    {
+        if (parent == null)
+        {
+            return null;
+        }
+
+        foreach (Transform child in parent)
+        {
+            if (child.name == name)
+            {
+                return child;
+            }
+
+            Transform found = FindDeepChild(child, name);
+            if (found != null)
+            {
+                return found;
+            }
+        }
+
+        return null;
+    }
+
+    private void BindButton(Button button, Action callback)
+    {
+        if (button == null)
+        {
+            return;
+        }
+
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(() => callback?.Invoke());
+    }
+
+    private void DestroyUnityObject(UnityEngine.Object target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        if (Application.isPlaying)
+        {
+            Destroy(target);
+        }
+        else
+        {
+            DestroyImmediate(target);
+        }
     }
 
     private Text Label(string text, Transform parent, int size, FontStyle style, TextAnchor anchor, Color color)
@@ -1222,5 +1498,25 @@ public class HeavenOfficeView : MonoBehaviour
 #else
         eventSystem.AddComponent<StandaloneInputModule>();
 #endif
+    }
+
+    private bool HasCurrentMainOfficeLayout(Transform canvasTransform)
+    {
+        if (canvasTransform == null)
+        {
+            return false;
+        }
+
+        Transform centralWorkZone = canvasTransform.Find("CentralWorkZone");
+        if (centralWorkZone == null)
+        {
+            return false;
+        }
+
+        return centralWorkZone.Find("MainOfficeDesk") != null
+            && centralWorkZone.Find("HeavenPortal") != null
+            && centralWorkZone.Find("HellPortal") != null
+            && canvasTransform.Find("LeftStampPanel") == null
+            && canvasTransform.Find("RightStampPanel") == null;
     }
 }

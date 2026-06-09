@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public static class MainOfficeExperienceSceneBuilder
 {
     private const string ScenePath = "Assets/Scenes/MainOfficeExperience.unity";
+    private const string PrefabPath = "Assets/Prefabs/HeavenOfficeMainOfficeEditable.prefab";
 
     [MenuItem("Heaven Office/Main Office/Create Editable Main Office Scene")]
     public static void CreateEditableMainOfficeScene()
@@ -23,6 +24,7 @@ public static class MainOfficeExperienceSceneBuilder
         GameObject root = new GameObject("HeavenOfficeMainOfficeEditable");
         HeavenOfficeGameController controller = root.AddComponent<HeavenOfficeGameController>();
         HeavenOfficeView view = root.AddComponent<HeavenOfficeView>();
+        root.AddComponent<MainOfficeEditableSceneBootstrap>();
 
         view.BuildIfNeeded(true);
         view.PrepareMainOfficeEditorPreview();
@@ -63,6 +65,7 @@ public static class MainOfficeExperienceSceneBuilder
         {
             GameObject root = new GameObject("HeavenOfficeMainOfficeEditable");
             root.AddComponent<HeavenOfficeGameController>();
+            root.AddComponent<MainOfficeEditableSceneBootstrap>();
             view = root.AddComponent<HeavenOfficeView>();
         }
         else
@@ -78,6 +81,35 @@ public static class MainOfficeExperienceSceneBuilder
         view.PrepareMainOfficeEditorPreview();
         EditorUtility.SetDirty(view);
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+    }
+
+    [MenuItem("Heaven Office/Main Office/Save Current Layout As Prefab")]
+    public static void SaveCurrentLayoutAsPrefab()
+    {
+        HeavenOfficeView view = Object.FindObjectOfType<HeavenOfficeView>();
+        if (view == null)
+        {
+            Debug.LogWarning("MainOfficeExperienceSceneBuilder: no HeavenOfficeView found in current scene.");
+            return;
+        }
+
+        Canvas canvas = view.GetComponentInChildren<Canvas>();
+        if (canvas == null)
+        {
+            Debug.LogWarning("MainOfficeExperienceSceneBuilder: no HeavenOfficeCanvas found to save as prefab.");
+            return;
+        }
+
+        string directory = System.IO.Path.GetDirectoryName(PrefabPath);
+        if (!System.IO.Directory.Exists(directory))
+        {
+            System.IO.Directory.CreateDirectory(directory);
+        }
+
+        PrefabUtility.SaveAsPrefabAsset(view.gameObject, PrefabPath);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log($"Main office layout prefab saved: {PrefabPath}");
     }
 
     private static void EnsureSceneInBuildSettings(string path)

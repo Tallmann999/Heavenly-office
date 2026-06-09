@@ -4653,6 +4653,7 @@ MonoBehaviour:
   m_Script: {fileID: 1256135605}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeavenOfficeView
+  mainOfficeLayoutPrefab: {fileID: 5893742273713150904, guid: af9effdd062c69e44bc70378b6c63456, type: 3}
 --- !u!114 &921508560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4709,6 +4710,7 @@ MonoBehaviour:
   m_Script: {fileID: 969640576}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeavenOfficeView
+  mainOfficeLayoutPrefab: {fileID: 5893742273713150904, guid: af9effdd062c69e44bc70378b6c63456, type: 3}
 --- !u!114 &921508563
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4721,6 +4723,7 @@ MonoBehaviour:
   m_Script: {fileID: 1093090093}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeavenOfficeView
+  mainOfficeLayoutPrefab: {fileID: 5893742273713150904, guid: af9effdd062c69e44bc70378b6c63456, type: 3}
 --- !u!114 &921508564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4734,6 +4737,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeavenOfficeView
   font: {fileID: 11400000, guid: a1f11e2870a3b364894283ad1ae29d42, type: 2}
+  mainOfficeLayoutPrefab: {fileID: 5893742273713150904, guid: af9effdd062c69e44bc70378b6c63456, type: 3}
   titleText: {fileID: 144106220}
   scoreText: {fileID: 555792593}
   queueText: {fileID: 945241735}
