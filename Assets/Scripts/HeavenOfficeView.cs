@@ -497,6 +497,33 @@ public class HeavenOfficeView : MonoBehaviour
         }
     }
 
+    public void PrepareMainOfficeEditorPreview()
+    {
+        HideStartMenu();
+        HideFinalPanel();
+        HideHeldStamp();
+
+        if (stampMarkPanel != null)
+        {
+            stampMarkPanel.gameObject.SetActive(false);
+        }
+
+        if (reactionText != null)
+        {
+            reactionText.text = "Editable main office layout";
+        }
+
+        if (documentText != null)
+        {
+            documentText.text = $"{DocTitle("SOUL DOSSIER")}\nName: Editable Soul\nAge: 62\nLife: placeholder case page\n\nGood acts:\n- kindness\n- loyalty\n\nBad acts:\n- greed\n- late paperwork";
+        }
+
+        if (soulText != null)
+        {
+            soulText.text = "CURRENT SOUL\neditable preview";
+        }
+    }
+
     public void ShowHeldStamp(StampType stamp)
     {
         if (heldStampRect == null) return;
