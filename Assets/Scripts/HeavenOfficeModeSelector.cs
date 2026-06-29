@@ -41,11 +41,10 @@ public class HeavenOfficeModeSelector : MonoBehaviour
         TextMeshProUGUI title = Label("Heavenly Office", panel, 42, FontStyles.Bold, TextAlignmentOptions.Center, new Color(0.16f, 0.19f, 0.22f));
         Anchor(title.rectTransform, new Vector2(0f, 0.74f), new Vector2(1f, 0.94f), 30f, 0f);
 
-        TextMeshProUGUI subtitle = Label("Choose mode / Выберите режим", panel, 24, FontStyles.Bold, TextAlignmentOptions.Center, new Color(0.36f, 0.3f, 0.18f));
+        TextMeshProUGUI subtitle = Label("Steam Demo", panel, 24, FontStyles.Bold, TextAlignmentOptions.Center, new Color(0.36f, 0.3f, 0.18f));
         Anchor(subtitle.rectTransform, new Vector2(0f, 0.62f), new Vector2(1f, 0.74f), 36f, 0f);
 
-        AddModeButton(panel, "Steam Demo", "New Divine Office flow", new Vector2(0f, 18f), new Color(0.22f, 0.52f, 0.74f), HeavenOfficeMode.DivineOfficeDemo);
-        AddModeButton(panel, "Legacy Office Loop", "First playable iteration", new Vector2(0f, -86f), new Color(0.68f, 0.48f, 0.22f), HeavenOfficeMode.LegacyOfficeLoop);
+        AddModeButton(panel, "Start", "Divine Office flow", new Vector2(0f, -34f), new Color(0.22f, 0.52f, 0.74f), HeavenOfficeMode.DivineOfficeDemo);
     }
 
     private void AddModeButton(RectTransform parent, string title, string subtitle, Vector2 position, Color color, HeavenOfficeMode mode)
@@ -68,17 +67,9 @@ public class HeavenOfficeModeSelector : MonoBehaviour
             Destroy(canvas.gameObject);
         }
 
-        if (mode == HeavenOfficeMode.LegacyOfficeLoop)
-        {
-            GameObject game = new GameObject("LegacyOfficeLoop");
-            game.AddComponent<HeavenOfficeAdapter>();
-        }
-        else
-        {
-            GameObject game = new GameObject("DivineOfficeDemo");
-            game.AddComponent<HeavenOfficeView>();
-            game.AddComponent<DivineOfficeFlowController>();
-        }
+        GameObject game = new GameObject("DivineOfficeDemo");
+        game.AddComponent<HeavenOfficeView>();
+        game.AddComponent<DivineOfficeFlowController>();
 
         Destroy(gameObject);
     }

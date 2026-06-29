@@ -8,29 +8,8 @@ public static class HeavenOfficeSceneBuilder
     [MenuItem("Heaven Office/Rebuild Editable Scene")]
     public static void RebuildEditableScene()
     {
-        if (EditorApplication.isPlayingOrWillChangePlaymode)
-        {
-            Debug.Log("HeavenOfficeSceneBuilder: skipped editable scene rebuild during Play Mode.");
-            return;
-        }
-
-        HeavenOfficeGameController controller = Object.FindObjectOfType<HeavenOfficeGameController>();
-        if (controller == null)
-        {
-            GameObject game = new GameObject("HeavenOfficeGame");
-            controller = game.AddComponent<HeavenOfficeGameController>();
-        }
-
-        HeavenOfficeView view = controller.GetComponent<HeavenOfficeView>();
-        if (view == null)
-        {
-            view = controller.gameObject.AddComponent<HeavenOfficeView>();
-        }
-
-        view.BuildIfNeeded(true);
-        EditorUtility.SetDirty(controller);
-        EditorUtility.SetDirty(view);
-        EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+        Debug.Log("Legacy editable scene rebuild is disabled. Opening MainOfficeExperience instead.");
+        MainOfficeExperienceSceneBuilder.OpenEditableMainOfficeScene();
     }
 
     [InitializeOnLoadMethod]
@@ -49,12 +28,7 @@ public static class HeavenOfficeSceneBuilder
                 return;
             }
 
-            HeavenOfficeGameController controller = Object.FindObjectOfType<HeavenOfficeGameController>();
-            HeavenOfficeView view = controller != null ? controller.GetComponent<HeavenOfficeView>() : null;
-            if (controller == null || view == null || controller.GetComponentInChildren<Canvas>() == null)
-            {
-                RebuildEditableScene();
-            }
+            Debug.Log("SampleScene legacy auto-rebuild is disabled. Use MainOfficeExperience for Steam Demo.");
         };
     }
 }

@@ -19,11 +19,6 @@ public class MainOfficeEditableSceneBootstrap : MonoBehaviour
             view = gameObject.AddComponent<HeavenOfficeView>();
         }
 
-        if (GetComponent<HeavenOfficeGameController>() == null)
-        {
-            gameObject.AddComponent<HeavenOfficeGameController>();
-        }
-
         if (view.GetComponentInChildren<Canvas>() == null)
         {
             view.BuildIfNeeded(true);

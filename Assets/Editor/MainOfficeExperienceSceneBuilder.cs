@@ -22,14 +22,12 @@ public static class MainOfficeExperienceSceneBuilder
         scene.name = "MainOfficeExperience";
 
         GameObject root = new GameObject("HeavenOfficeMainOfficeEditable");
-        HeavenOfficeGameController controller = root.AddComponent<HeavenOfficeGameController>();
         HeavenOfficeView view = root.AddComponent<HeavenOfficeView>();
         root.AddComponent<MainOfficeEditableSceneBootstrap>();
 
         view.BuildIfNeeded(true);
         view.PrepareMainOfficeEditorPreview();
 
-        EditorUtility.SetDirty(controller);
         EditorUtility.SetDirty(view);
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, ScenePath);
@@ -64,7 +62,6 @@ public static class MainOfficeExperienceSceneBuilder
         if (view == null)
         {
             GameObject root = new GameObject("HeavenOfficeMainOfficeEditable");
-            root.AddComponent<HeavenOfficeGameController>();
             root.AddComponent<MainOfficeEditableSceneBootstrap>();
             view = root.AddComponent<HeavenOfficeView>();
         }
