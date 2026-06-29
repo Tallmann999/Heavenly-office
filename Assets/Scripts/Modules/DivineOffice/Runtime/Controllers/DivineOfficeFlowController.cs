@@ -37,12 +37,13 @@ public class DivineOfficeFlowController : MonoBehaviour
             if (t.LanguageCode == LocalizationService.CurrentLanguage)
             {
                 LocalizationService.LoadTable(t);
+                LocalizationService.LoadEntries(DivineOfficeSoulContentCatalog.BuildLocalizationEntries(LocalizationService.CurrentLanguage));
                 break;
             }
         }
 
         // Load soul cases
-        soulSOs = Resources.LoadAll<SoulCaseData>("DivineOffice/ScriptableObjects");
+        soulSOs = DivineOfficeSoulContentCatalog.BuildDemoQueue(Resources.LoadAll<SoulCaseData>("DivineOffice/ScriptableObjects"));
         reincarnationSOs = Resources.LoadAll<ReincarnationData>("DivineOffice/ScriptableObjects");
         if (soulSOs == null || soulSOs.Length == 0)
         {
@@ -84,7 +85,7 @@ public class DivineOfficeFlowController : MonoBehaviour
         foreach (var b in so.BadActKeys) doc.badActs.Add(LocalizationService.Get(b));
         doc.expectedStamp = so.CorrectStamp;
         doc.ruleExplanation = LocalizationService.Get("ui.rule_hint");
-        doc.difficultyTier = 0;
+        doc.difficultyTier = (int)so.Rarity;
 
         if (view != null)
         {
@@ -121,9 +122,8 @@ public class DivineOfficeFlowController : MonoBehaviour
         if (correct && !string.IsNullOrEmpty(so.CardRewardId) && !saveData.UnlockedCardIds.Contains(so.CardRewardId))
         {
             saveData.UnlockedCardIds.Add(so.CardRewardId);
-            // reward points for unlocking a card
-            saveData.KarmaPoints += 10;
-            saveData.OfficeCoins += 5;
+            saveData.KarmaPoints += so.JudgePointReward;
+            saveData.OfficeCoins += so.OfficeCoinReward;
         }
 
         // Persist
@@ -202,6 +202,7 @@ public class DivineOfficeFlowController : MonoBehaviour
             if (t.LanguageCode == LocalizationService.CurrentLanguage)
             {
                 LocalizationService.LoadTable(t);
+                LocalizationService.LoadEntries(DivineOfficeSoulContentCatalog.BuildLocalizationEntries(LocalizationService.CurrentLanguage));
                 return;
             }
         }

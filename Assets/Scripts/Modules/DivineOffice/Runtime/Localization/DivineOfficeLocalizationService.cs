@@ -20,7 +20,13 @@ public class DivineOfficeLocalizationService : IDivineOfficeLocalizationService
         if (soTable.LanguageCode != CurrentLanguage) return;
 
         table.Clear();
-        foreach (var entry in soTable.Entries)
+        LoadEntries(soTable.Entries);
+    }
+
+    public void LoadEntries(IEnumerable<LocalizationEntry> entries)
+    {
+        if (entries == null) return;
+        foreach (var entry in entries)
         {
             if (!string.IsNullOrEmpty(entry.Key)) table[entry.Key] = entry.Value;
         }
