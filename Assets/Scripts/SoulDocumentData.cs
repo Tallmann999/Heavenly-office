@@ -13,7 +13,6 @@ public class SoulDocumentData
     public StampType expectedStamp;
     public string ruleExplanation;
     public int difficultyTier;
-    public float timeLimit;
 
     public string CaseType
     {

@@ -56,6 +56,7 @@ public class DivineOfficeFlowController : MonoBehaviour
             view.BuildIfNeeded(true);
             view.Bind(OnStampSelected, OnStampTargetPressed, OnLanguageSelected, OnStartRequested, OnRestartRequested);
             view.ApplyLanguage(LocalizationService.CurrentLanguage == "en" ? HeavenOfficeLanguage.English : HeavenOfficeLanguage.Russian);
+            view.HideTimer();
             view.ShowStartMenu();
         }
 
@@ -84,13 +85,13 @@ public class DivineOfficeFlowController : MonoBehaviour
         doc.expectedStamp = so.CorrectStamp;
         doc.ruleExplanation = LocalizationService.Get("ui.rule_hint");
         doc.difficultyTier = 0;
-        doc.timeLimit = 15f;
 
         if (view != null)
         {
             var generator = new SoulDocumentGenerator();
             view.ShowDocument(doc, generator, currentIndex + 1, soulSOs.Length, lang);
             view.UpdateHud(0, currentIndex + 1, soulSOs.Length, 0, 3, 0, doc.difficultyTier, lang);
+            view.HideTimer();
             view.SetFeedback(LocalizationService.Get("ui.waiting_for_stamp"), new Color(0.25f, 0.27f, 0.3f), lang);
         }
         selectedStamp = null;

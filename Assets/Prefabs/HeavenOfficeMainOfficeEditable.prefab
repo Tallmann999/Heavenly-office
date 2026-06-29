@@ -1308,8 +1308,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.77, y: 0.48}
   m_AnchorMax: {x: 0.85, y: 0.82}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 72.819336, y: -1}
+  m_SizeDelta: {x: 21.8194, y: -88.3167}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &3103091191033084484
 CanvasRenderer:
@@ -1339,7 +1339,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -2924050534537241842, guid: bf88ab59ef6c4514b9807b21d6ef5cee, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -3272,7 +3272,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.86, y: 0.48}
   m_AnchorMax: {x: 0.94, y: 0.82}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 70, y: 1}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5888980755914582230
@@ -5893,16 +5893,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeavenOfficeGameController
   config:
     sessionSoulCount: 12
-    documentReadTimeLimit: 15
     maxMistakeCount: 3
     difficultyRampStep: 4
     baseScoreReward: 100
-    fastDecisionBonus: 50
     mistakePenalty: 75
     comboScoreMultiplier: 0.1
-    fastDecisionWindow: 0.4
-    tierTwoTimeMultiplier: 0.9
-    urgentTimeMultiplier: 0.7
     reactionDelay: 0.55
     exitAnimationTime: 0.45
     enableAnalyticsLog: 1
@@ -8323,8 +8318,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.48, y: 0.66}
   m_AnchorMax: {x: 0.66, y: 0.93}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -16.001, y: 0}
+  m_SizeDelta: {x: -32.002, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1546474501525023072
 CanvasRenderer:
@@ -10231,7 +10226,7 @@ RectTransform:
   m_AnchorMin: {x: 0.68, y: 0.48}
   m_AnchorMax: {x: 0.76, y: 0.82}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 31.1706, y: -89.317}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &7846185347367411730
 CanvasRenderer:
@@ -10261,7 +10256,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -8815929260699215895, guid: bf88ab59ef6c4514b9807b21d6ef5cee, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1

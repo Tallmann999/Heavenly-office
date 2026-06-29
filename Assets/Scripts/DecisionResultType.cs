@@ -1,6 +1,5 @@
 public enum DecisionResultType
 {
     Correct,
-    WrongStamp,
-    TimeExpired
+    WrongStamp
 }

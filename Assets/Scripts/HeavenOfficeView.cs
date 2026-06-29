@@ -155,17 +155,9 @@ public class HeavenOfficeView : MonoBehaviour
 
         scoreText = TopLabel("Score: 0", top, 16, 24);
         queueText = TopLabel("Case: 1/12", top, 16, 170);
-        timerText = TopLabel("Timer: 12.0", top, 16, 1280);
         mistakesText = TopLabel("Errors: 0/3", top, 16, 1420);
         comboText = TopLabel("Combo: 0", top, 14, 24, -44);
         tierText = TopLabel("Tier 0", top, 14, 170, -44);
-
-        RectTransform timerBar = Panel("TimerBar", top, new Color(0.24f, 0.2f, 0.15f), new Vector2(0.78f, 0f), new Vector2(0.98f, 0f), Vector2.zero);
-        timerBar.offsetMin = new Vector2(0f, 12f);
-        timerBar.offsetMax = new Vector2(0f, 22f);
-        timerFill = Panel("TimerFill", timerBar, new Color(0.82f, 0.52f, 0.22f), new Vector2(0f, 0f), new Vector2(0f, 1f), Vector2.zero).GetComponent<Image>();
-        timerFill.rectTransform.pivot = new Vector2(0f, 0.5f);
-        Stretch(timerFill.rectTransform, 0, 0, 0, 0);
 
         RectTransform bottom = Panel("BottomHud", root, new Color(0.07f, 0.075f, 0.085f, 0.98f), Vector2.zero, Vector2.zero, Vector2.zero);
         bottom.anchorMin = Vector2.zero;
@@ -356,13 +348,21 @@ public class HeavenOfficeView : MonoBehaviour
         }
     }
 
-    public void UpdateTimer(float remaining, float limit)
+    public void HideTimer()
     {
-        float ratio = Mathf.Clamp01(remaining / Mathf.Max(0.01f, limit));
-        timerText.text = currentLanguage == HeavenOfficeLanguage.English ? $"Timer: {Mathf.Max(0f, remaining):0.0}" : $"Таймер: {Mathf.Max(0f, remaining):0.0}";
-        timerText.color = ratio <= 0.25f ? new Color(0.95f, 0.24f, 0.16f) : new Color(0.84f, 0.75f, 0.58f);
-        timerFill.color = ratio <= 0.25f ? new Color(0.88f, 0.16f, 0.12f) : new Color(0.82f, 0.52f, 0.22f);
-        timerFill.rectTransform.anchorMax = new Vector2(ratio, 1f);
+        if (timerText != null)
+        {
+            timerText.gameObject.SetActive(false);
+        }
+
+        if (timerFill != null)
+        {
+            timerFill.gameObject.SetActive(false);
+            if (timerFill.transform.parent != null)
+            {
+                timerFill.transform.parent.gameObject.SetActive(false);
+            }
+        }
     }
 
     public void SetRuleHint(string hint)
@@ -610,7 +610,6 @@ public class HeavenOfficeView : MonoBehaviour
 
         PlaceTopLabel(scoreText, 24f, -16f, 130f);
         PlaceTopLabel(queueText, 170f, -16f, 150f);
-        PlaceTopLabel(timerText, 1280f, -16f, 130f);
         PlaceTopLabel(mistakesText, 1420f, -16f, 150f);
         PlaceTopLabel(comboText, 24f, -44f, 130f);
         PlaceTopLabel(tierText, 170f, -44f, 120f);
@@ -1471,7 +1470,6 @@ public class HeavenOfficeView : MonoBehaviour
             {
                 case SessionEndReason.QueueCompleted: return "queue completed";
                 case SessionEndReason.TooManyMistakes: return "too many errors";
-                case SessionEndReason.SessionTimerExpired: return "shift timer expired";
                 case SessionEndReason.ManualRestart: return "manual restart";
                 default: return reason.ToString();
             }
@@ -1481,7 +1479,6 @@ public class HeavenOfficeView : MonoBehaviour
         {
             case SessionEndReason.QueueCompleted: return "очередь обработана";
             case SessionEndReason.TooManyMistakes: return "слишком много ошибок";
-            case SessionEndReason.SessionTimerExpired: return "истёк таймер смены";
             case SessionEndReason.ManualRestart: return "ручной перезапуск";
             default: return reason.ToString();
         }

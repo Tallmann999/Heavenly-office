@@ -71,7 +71,7 @@ public class SoulDocumentGenerator
         for (int i = 0; i < config.sessionSoulCount; i++)
         {
             int tier = Mathf.Clamp(i / Mathf.Max(1, config.difficultyRampStep), 0, 3);
-            result.Add(CreateDocument(tier, config, i, language));
+            result.Add(CreateDocument(tier, i, language));
         }
 
         return result;
@@ -100,12 +100,12 @@ public class SoulDocumentGenerator
         return GetTagDescription(tag);
     }
 
-    private SoulDocumentData CreateDocument(int tier, HeavenOfficeConfig config, int index, HeavenOfficeLanguage language)
+    private SoulDocumentData CreateDocument(int tier, int index, HeavenOfficeLanguage language)
     {
         var available = HeavenOfficeRulesEvaluator.GetAvailableStamps(tier);
         for (int attempt = 0; attempt < 40; attempt++)
         {
-            SoulDocumentData document = BuildCandidate(tier, config, index + attempt, language);
+            SoulDocumentData document = BuildCandidate(tier, index + attempt, language);
             RuleEvaluation evaluation = HeavenOfficeRulesEvaluator.Evaluate(document, available);
             document.expectedStamp = evaluation.expectedStamp;
             document.ruleExplanation = BuildHint(document, evaluation.explanation, language);
@@ -116,14 +116,14 @@ public class SoulDocumentGenerator
             }
         }
 
-        SoulDocumentData fallback = BuildSimpleCandidate(tier, config, index, language);
+        SoulDocumentData fallback = BuildSimpleCandidate(tier, index, language);
         RuleEvaluation fallbackEvaluation = HeavenOfficeRulesEvaluator.Evaluate(fallback, available);
         fallback.expectedStamp = fallbackEvaluation.expectedStamp;
         fallback.ruleExplanation = BuildHint(fallback, fallbackEvaluation.explanation, language);
         return fallback;
     }
 
-    private SoulDocumentData BuildCandidate(int tier, HeavenOfficeConfig config, int seedOffset, HeavenOfficeLanguage language)
+    private SoulDocumentData BuildCandidate(int tier, int seedOffset, HeavenOfficeLanguage language)
     {
         int goodCount = tier == 0 ? random.Next(2, 4) : random.Next(1, 4);
         int badCount = tier == 0 ? random.Next(0, 2) : random.Next(1, 4);
@@ -158,12 +158,11 @@ public class SoulDocumentGenerator
             goodActs = Pick(GetGoodActs(language), goodCount),
             badActs = Pick(GetBadActs(language), badCount),
             tags = tags,
-            difficultyTier = tier,
-            timeLimit = CalculateTimeLimit(config, tier, tags)
+            difficultyTier = tier
         };
     }
 
-    private SoulDocumentData BuildSimpleCandidate(int tier, HeavenOfficeConfig config, int index, HeavenOfficeLanguage language)
+    private SoulDocumentData BuildSimpleCandidate(int tier, int index, HeavenOfficeLanguage language)
     {
         bool heaven = index % 2 == 0;
         var tags = new List<SoulDocumentTag>();
@@ -175,25 +174,8 @@ public class SoulDocumentGenerator
             goodActs = Pick(GetGoodActs(language), heaven ? 3 : 1),
             badActs = Pick(GetBadActs(language), heaven ? 1 : 3),
             tags = tags,
-            difficultyTier = tier,
-            timeLimit = CalculateTimeLimit(config, tier, tags)
+            difficultyTier = tier
         };
-    }
-
-    private float CalculateTimeLimit(HeavenOfficeConfig config, int tier, List<SoulDocumentTag> tags)
-    {
-        float time = config.documentReadTimeLimit;
-        if (tier >= 2)
-        {
-            time *= config.tierTwoTimeMultiplier;
-        }
-
-        if (tags.Contains(SoulDocumentTag.UrgentCase))
-        {
-            time *= config.urgentTimeMultiplier;
-        }
-
-        return Mathf.Max(4f, time);
     }
 
     private string BuildHint(SoulDocumentData document, string evaluation, HeavenOfficeLanguage language)
@@ -204,7 +186,7 @@ public class SoulDocumentGenerator
             if (document.tags.Contains(SoulDocumentTag.IncompleteSignature)) return "Incomplete signature: use Appeal.";
             if (document.tags.Contains(SoulDocumentTag.SelfishGoodActs)) return "Selfish good deed: ignore one good act.";
             if (document.tags.Contains(SoulDocumentTag.ForgivenBadAct)) return "Forgiven bad deed: ignore one bad act.";
-            if (document.tags.Contains(SoulDocumentTag.UrgentCase)) return "Urgent case: less time, same rule.";
+            if (document.tags.Contains(SoulDocumentTag.UrgentCase)) return "Urgent case: the queue is restless, but the rule is unchanged.";
             return "More good acts means Heaven. More bad acts means Hell.";
         }
 
@@ -212,7 +194,7 @@ public class SoulDocumentGenerator
         if (document.tags.Contains(SoulDocumentTag.IncompleteSignature)) return "Пометка «Неполная подпись» отправляет дело на «Апелляцию».";
         if (document.tags.Contains(SoulDocumentTag.SelfishGoodActs)) return "Особая пометка «Корысть»: один добрый поступок не учитывается.";
         if (document.tags.Contains(SoulDocumentTag.ForgivenBadAct)) return "Пометка «Прощённый поступок»: один плохой поступок не учитывается.";
-        if (document.tags.Contains(SoulDocumentTag.UrgentCase)) return "Срочное дело: времени меньше, правило морали прежнее.";
+        if (document.tags.Contains(SoulDocumentTag.UrgentCase)) return "Срочное дело: очередь нервничает, но правило морали прежнее.";
         return "Базовое правило: если хороших поступков больше, ставь «Рай». Если плохих больше, ставь «Ад».";
     }
 

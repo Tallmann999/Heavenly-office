@@ -16,7 +16,7 @@ public class HeavenOfficeGameController : MonoBehaviour
     private List<SoulDocumentData> queue = new List<SoulDocumentData>();
     private SoulDocumentData currentDocument;
     private StampType? selectedStamp;
-    private float remainingTime;
+    private float documentShownAt;
     private bool inputLocked;
     private bool sessionEnded;
     private int currentIndex;
@@ -60,6 +60,7 @@ public class HeavenOfficeGameController : MonoBehaviour
     {
         view.BuildIfNeeded(config.createUiAtRuntime);
         view.Bind(OnStampSelected, OnStampTargetPressed, OnLanguageSelected, StartSession, RestartSession);
+        view.HideTimer();
         sessionEnded = true;
         inputLocked = true;
         view.ShowStartMenu();
@@ -70,18 +71,7 @@ public class HeavenOfficeGameController : MonoBehaviour
         HandleHotkeys();
         view.UpdateHeldStampPosition();
 
-        if (sessionEnded || inputLocked || currentDocument == null)
-        {
-            return;
-        }
-
-        remainingTime -= Time.deltaTime;
-        view.UpdateTimer(remainingTime, currentDocument.timeLimit);
-
-        if (remainingTime <= 0f)
-        {
-            StartCoroutine(ResolveTimeExpired());
-        }
+        // No per-document countdown: players can study a case at their own pace.
     }
 
     private void StartSession()
@@ -112,13 +102,13 @@ public class HeavenOfficeGameController : MonoBehaviour
         }
 
         currentDocument = queue[currentIndex];
-        remainingTime = currentDocument.timeLimit;
+        documentShownAt = Time.time;
         selectedStamp = null;
         inputLocked = false;
         var available = HeavenOfficeRulesEvaluator.GetAvailableStamps(currentDocument.difficultyTier);
         view.ShowDocument(currentDocument, generator, currentIndex + 1, queue.Count, language);
         view.UpdateHud(score, currentIndex + 1, queue.Count, mistakes, config.maxMistakeCount, combo, currentDocument.difficultyTier, language);
-        view.UpdateTimer(remainingTime, currentDocument.timeLimit);
+        view.HideTimer();
         view.SetRuleHint(currentDocument.ruleExplanation);
         view.SetStampAvailability(available);
         view.HighlightSelectedStamp(null);
@@ -140,7 +130,7 @@ public class HeavenOfficeGameController : MonoBehaviour
         selectedStamp = stamp;
         view.HighlightSelectedStamp(stamp);
         view.ShowHeldStamp(stamp);
-        analytics.Log("stamp_selected", currentDocument, stamp, null, currentDocument.timeLimit - remainingTime, currentDocument.difficultyTier);
+        analytics.Log("stamp_selected", currentDocument, stamp, null, GetDecisionElapsedTime(), currentDocument.difficultyTier);
     }
 
     private void OnStampTargetPressed()
@@ -160,7 +150,7 @@ public class HeavenOfficeGameController : MonoBehaviour
     {
         inputLocked = true;
         view.HideHeldStamp();
-        float reactionTime = currentDocument.timeLimit - remainingTime;
+        float reactionTime = GetDecisionElapsedTime();
         analytics.Log("stamp_applied", currentDocument, stamp, null, reactionTime, currentDocument.difficultyTier);
         yield return view.PlayStampAnimation(stamp, config.reactionDelay);
 
@@ -187,29 +177,15 @@ public class HeavenOfficeGameController : MonoBehaviour
         AdvanceOrEnd();
     }
 
-    private IEnumerator ResolveTimeExpired()
-    {
-        inputLocked = true;
-        remainingTime = 0f;
-        view.UpdateTimer(0f, currentDocument.timeLimit);
-        view.ShowSpoiledStamp();
-        Penalize();
-        view.SetFeedback(language == HeavenOfficeLanguage.English ? $"Time expired. -{config.mistakePenalty}." : $"Время вышло. -{config.mistakePenalty}.", new Color(0.55f, 0.2f, 0.16f), language);
-        analytics.Log("time_expired", currentDocument, null, DecisionResultType.TimeExpired, currentDocument.timeLimit, currentDocument.difficultyTier);
-        view.UpdateHud(score, currentIndex + 1, queue.Count, mistakes, config.maxMistakeCount, combo, currentDocument.difficultyTier, language);
-        yield return new WaitForSeconds(config.reactionDelay);
-        yield return view.PlayExitAnimation(null, config.exitAnimationTime);
-        AdvanceOrEnd();
-    }
-
     private int CalculateScoreGain()
     {
-        float remainingRatio = Mathf.Clamp01(remainingTime / Mathf.Max(0.01f, currentDocument.timeLimit));
-        int speedBonus = remainingRatio >= 1f - config.fastDecisionWindow
-            ? Mathf.RoundToInt(config.fastDecisionBonus * remainingRatio)
-            : 0;
         int comboBonus = Mathf.RoundToInt(config.baseScoreReward * config.comboScoreMultiplier * combo);
-        return config.baseScoreReward + speedBonus + comboBonus;
+        return config.baseScoreReward + comboBonus;
+    }
+
+    private float GetDecisionElapsedTime()
+    {
+        return currentDocument == null ? 0f : Mathf.Max(0f, Time.time - documentShownAt);
     }
 
     private void Penalize()
@@ -218,7 +194,7 @@ public class HeavenOfficeGameController : MonoBehaviour
         mistakes++;
         if (combo > 0)
         {
-            analytics.Log("combo_broken", currentDocument, selectedStamp, null, currentDocument.timeLimit - remainingTime, currentDocument.difficultyTier);
+            analytics.Log("combo_broken", currentDocument, selectedStamp, null, GetDecisionElapsedTime(), currentDocument.difficultyTier);
         }
 
         combo = 0;
